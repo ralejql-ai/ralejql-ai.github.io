@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Ficha de Corredor · Terapia Respiratoria</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="Ficha de ingreso, autoevaluación de movimiento y check-in semanal para los corredores de Rafael Quintana.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+/* Mismos tokens que la landing (ralejql-ai.github.io) */
+:root{
+  --teal-deep:#0D3B3E; --teal:#14545A; --teal-soft:#2E7177;
+  --copper:#C2734A; --copper-deep:#AC5F38;
+  --cream:#F8F3EA; --cream-deep:#EFE7D8; --paper:#FFFDF9;
+  --ink:#1C2628; --muted:rgba(28,38,40,.66); --line:rgba(13,59,62,.16);
+  --warn:#8A4B12; --warn-soft:#F6E3CF;
+  --display:'Cormorant Garamond',Georgia,serif;
+  --body:'DM Sans',-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+[hidden]{display:none!important}
+body{font-family:var(--body);background:var(--cream);color:var(--ink);line-height:1.6;font-weight:400;-webkit-font-smoothing:antialiased;font-size:16px}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--copper);outline-offset:3px;border-radius:2px}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+h1,h2,h3,h4{font-family:var(--display);font-weight:500;color:var(--teal-deep);line-height:1.12;text-wrap:balance}
+.eyebrow{font-size:11px;letter-spacing:.24em;text-transform:uppercase;font-weight:500;color:var(--copper)}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap;user-select:all;font-weight:500}
+
+/* Marca */
+.top{border-bottom:1px solid var(--line);background:rgba(248,243,234,.94)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;padding-block:14px}
+.logo{font-family:var(--display);font-size:20px;font-weight:600;color:var(--teal-deep);text-decoration:none;letter-spacing:.02em}
+.logo span{color:var(--copper);font-style:italic}
+.top small{font-size:12px;color:var(--muted)}
+.hero{padding-block:44px 26px;display:flex;flex-direction:column;gap:14px}
+.hero h1{font-size:clamp(40px,8vw,58px)}
+.hero h1 em{font-style:italic;color:var(--copper)}
+.hero p{color:var(--muted);max-width:58ch;font-weight:300;font-size:17px}
+
+/* Pestañas */
+.bar{position:sticky;top:0;z-index:20;background:var(--paper);border-block:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-block:10px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;display:flex;align-items:baseline;gap:8px;border:1px solid var(--line);background:transparent;color:var(--muted);font:500 14px/1 var(--body);padding:10px 16px;border-radius:100px;cursor:pointer}
+.tab .n{font-family:var(--display);font-style:italic;font-size:16px;color:var(--copper)}
+.tab .pc{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tab[aria-selected="true"]{background:var(--teal);border-color:var(--teal);color:var(--cream)}
+.tab[aria-selected="true"] .n,.tab[aria-selected="true"] .pc{color:var(--copper-soft,#D89066)}
+.prog{height:2px;background:var(--cream-deep)}
+.prog i{display:block;height:100%;width:0;background:var(--copper);transition:width .3s}
+
+/* Módulo */
+.mod{padding-block:34px 72px;display:flex;flex-direction:column;gap:30px}
+.mhead{display:flex;flex-direction:column;gap:10px}
+.mhead h2{font-size:clamp(32px,6vw,42px)}
+.mhead p{max-width:60ch;font-weight:300;font-size:17px}
+.meta{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:12px;padding:6px 12px;border-radius:100px;background:var(--cream-deep);color:var(--teal)}
+.chip.acc{background:var(--teal);color:var(--cream)}
+
+section.sec{display:flex;flex-direction:column;gap:18px;padding-top:26px;border-top:1px solid var(--line)}
+.sec>header{display:flex;flex-direction:column;gap:4px}
+.sec h3{font-size:26px}
+.sec .note{color:var(--muted);font-size:15px;max-width:60ch;font-weight:300}
+
+.fld{display:flex;flex-direction:column;gap:7px;min-width:0;border:0}
+.fld>label,.fld>legend{font-weight:500;font-size:15px;color:var(--ink)}
+.help{font-size:13.5px;color:var(--muted)}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+.rowlab{font-family:var(--display);font-style:italic;font-size:19px;color:var(--teal);margin-bottom:-8px}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;font:16px var(--body);color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-height:48px}
+textarea{min-height:96px;resize:vertical}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--teal-soft);outline-offset:1px}
+.unit{position:relative}
+.unit input{padding-right:54px}
+.unit span{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--muted);pointer-events:none}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{position:relative;cursor:pointer}
+.opt input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.opt span{display:inline-block;padding:10px 15px;border:1px solid var(--line);border-radius:100px;background:var(--paper);font-size:15px;line-height:1.2}
+.opt input:checked+span{background:var(--teal);border-color:var(--teal);color:var(--cream)}
+.opt input:focus-visible+span{outline:2px solid var(--copper);outline-offset:2px}
+.scale .opt span{min-width:44px;text-align:center;font-variant-numeric:tabular-nums}
+.lr{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center}
+.lr .side{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--copper);font-weight:500}
+.chk{display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:15px}
+.chk input{width:20px;height:20px;margin-top:2px;accent-color:var(--teal);flex:0 0 auto}
+
+.test{display:flex;flex-direction:column;gap:12px;padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--paper)}
+.test .th{display:flex;gap:12px;align-items:baseline}
+.test .code{font-family:var(--display);font-style:italic;font-size:20px;color:var(--copper)}
+.test h4{font-size:22px}
+.test ol{padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:15px;font-weight:300}
+
+/* Resultado del assessment */
+.isr{display:flex;flex-direction:column;gap:14px;padding:20px;border-radius:14px;background:var(--teal-deep);color:var(--cream)}
+.isr .eyebrow{color:var(--copper-soft,#D89066)}
+.isr-top{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:flex-end;justify-content:space-between}
+.isr-n{font-family:var(--display);line-height:1;margin-top:6px}
+.isr-n b{font-size:52px;font-weight:500}
+.isr-n span{font-size:22px;opacity:.7}
+.isr-n em{font-size:22px;color:#D89066;margin-left:6px}
+.isr-p{display:flex;gap:16px;font-size:13px;opacity:.85}
+.isr-p b{font-family:var(--display);font-size:22px;font-weight:500;margin-left:4px}
+.isr .chk input{accent-color:var(--copper)}
+.isr.none{background:var(--cream-deep);color:var(--ink)}
+.isr .link{color:var(--copper-deep);font-weight:500;text-decoration:none}
+
+/* Envío */
+.review{display:flex;flex-direction:column;gap:14px;padding:22px;border-radius:14px;background:var(--cream-deep)}
+.review h3{font-size:28px}
+.howto{font-size:15px;font-weight:300}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:8px;font:500 14px/1 var(--body);letter-spacing:.03em;padding:14px 24px;border-radius:100px;border:1px solid var(--teal);background:transparent;color:var(--teal);cursor:pointer;text-decoration:none}
+.btn.pri{background:var(--teal);color:var(--cream)}
+.btn.pri:hover{background:var(--teal-deep)}
+.btn.wa{background:var(--copper);border-color:var(--copper);color:var(--cream)}
+.btn.wa:hover{background:var(--copper-deep)}
+.btn.ghost{border-color:var(--line);color:var(--muted)}
+.missing{color:var(--warn);font-size:14.5px}
+.out{min-height:220px;font:13px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap;background:var(--paper)}
+.status{font-size:14px;color:var(--teal);min-height:1.4em}
+footer.foot{padding-block:28px 48px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;font-weight:300}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap"><a class="logo" href="/">Terapia <span>Respiratoria</span></a><small>Rafael Quintana</small></div></div>
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">Optimización deportiva · Running</span>
+    <h1>Ficha de <em>corredor</em></h1>
+    <p>Con esta ficha programo tu entrenamiento con datos reales. Tiene tres partes: el ingreso se llena una sola vez, la autoevaluación cuando tengas 15 minutos y un teléfono para grabarte, y el check-in cada domingo.</p>
+  </header>
+</div>
+<div class="bar"><div class="wrap"><nav class="tabs" role="tablist" id="tabs"></nav></div><div class="prog"><i id="progbar"></i></div></div>
+<main class="wrap" id="main"></main>
+<div class="wrap"><footer class="foot">Tus respuestas se guardan solo en este dispositivo mientras llenas la ficha. Me llegan cuando me las envías por WhatsApp.</footer></div>
+<script>
+
+(()=>{
+const YN=[['si','Sí'],['no','No']];
+const PQ=['pq1','pq2','pq3','pq4','pq5','pq6','pq7'];
+const DIST=[['3','3 km'],['5','5 km'],['10','10 km'],['15','15 km'],['21.0975','Medio maratón'],['42.195','Maratón']];
+const num=(id,l,u,x={})=>Object.assign({id,l,type:'number',u},x);
+const seg=(id,l,o,x={})=>Object.assign({id,l,type:'seg',o},x);
+const marks=[1,2,3].map(i=>({type:'row',l:`Marca ${i}`,f:[{id:`m${i}_d`,l:'Distancia',type:'select',o:DIST},{id:`m${i}_t`,l:'Tiempo',type:'time'},{id:`m${i}_f`,l:'Fecha',type:'date'}]}));
+const lesions=[1,2].map(i=>({type:'row',l:`Lesión ${i}`,f:[{id:`les${i}`,l:'Lesión o molestia',type:'text',ph:'Ej.: rodilla derecha'},num(`les${i}_sem`,'Semanas sin correr','sem'),num(`les${i}_hoy`,'Dolor hoy (0–10)','',{min:0,max:10})]}));
+
+const SCHEMA={
+ingreso:{n:'01',tab:'Ingreso',title:'Ingreso',time:'7–10 min',freq:'Una sola vez',
+ lead:'Quién eres, qué quieres lograr y con qué cuentas. Con esto defino tu perfil y el primer test de campo que vamos a hacer.',
+ sections:[
+  {t:'Tus datos',f:[
+    {id:'nombre',l:'Nombre y apellido',type:'text',req:1},
+    {type:'row',f:[num('edad','Edad','años',{min:12,max:99}),{id:'sexo',l:'Sexo',type:'select',o:[['f','Femenino'],['m','Masculino']]}]},
+    {type:'row',f:[num('peso','Peso','kg',{step:0.1}),num('talla','Talla','cm')]},
+    {type:'row',f:[{id:'contacto',l:'WhatsApp o correo',type:'text'},{id:'ciudad',l:'Ciudad',type:'text'}]}]},
+  {t:'Tu objetivo',f:[
+    {id:'meta',l:'¿Qué quieres lograr?',type:'select',o:[['salud','Correr por salud, sin carrera definida'],['terminar','Terminar un 5K o 10K sin sufrir'],['marca','Bajar mi marca en una distancia'],['21k','Preparar un medio maratón'],['42k','Preparar un maratón'],['trail','Trail o ultra']]},
+    {type:'row',f:[{id:'carrera',l:'Carrera objetivo',type:'text',ph:'Ej.: 10K Caracas'},{id:'fecha_carrera',l:'Fecha',type:'date'}]},
+    {type:'row',f:[{id:'prioridad',l:'¿Qué tan importante es?',type:'select',o:[['A','A · la carrera del año'],['B','B · importante'],['C','C · de preparación']]},{id:'tiempo_meta',l:'Tiempo meta',type:'time'}]}]},
+  {t:'Cómo vienes corriendo',note:'Toma los datos de tu reloj o app, no de memoria.',f:[
+    {type:'row',f:[{id:'anios',l:'¿Hace cuánto corres?',type:'select',o:[['0','Estoy empezando'],['1','Menos de 1 año'],['2','1 a 3 años'],['3','Más de 3 años']]},num('dias_semana','Días que corres por semana','días',{min:0,max:7})]},
+    {type:'row',l:'Kilómetros por semana, últimas 4 semanas',f:[num('km1','Hace 4 sem.','km'),num('km2','Hace 3','km'),num('km3','Hace 2','km'),num('km4','La última','km')]},
+    {type:'row',f:[num('larga_km','Tirada más larga del último mes','km',{step:0.1}),{id:'larga_t',l:'En cuánto tiempo',type:'time'}]}]},
+  {t:'Marcas recientes',note:'Hasta tres carreras o contrarrelojes de los últimos 3 meses, de distancias distintas si puedes. Con dos ya puedo ver cómo se comporta tu resistencia.',f:marks},
+  {t:'Disponibilidad',f:[
+    {id:'dias',l:'Días en que puedes entrenar',type:'multi',o:[['lu','Lun'],['ma','Mar'],['mi','Mié'],['ju','Jue'],['vi','Vie'],['sa','Sáb'],['do','Dom']]},
+    {type:'row',f:[num('min_sem','Minutos por sesión entre semana','min'),num('min_fds','Minutos el fin de semana','min')]},
+    {id:'acceso',l:'Tienes acceso a',type:'multi',o:[['pista','Pista de atletismo'],['cinta','Caminadora'],['gym','Gimnasio'],['cuestas','Cuestas cerca'],['plano','Circuito plano y fijo']]},
+    seg('fuerza','¿Haces trabajo de fuerza?',[['no','No'],['1','1 vez por semana'],['2','2 o más']])]},
+  {t:'Tu equipo',note:'Esto define qué tests puedes hacer. No hace falta comprar nada para empezar.',f:[
+    {id:'reloj',l:'Reloj (marca y modelo)',type:'text',ph:'Ej.: Garmin Forerunner 255'},
+    seg('sensor','¿Cómo mides la frecuencia cardíaca?',[['muneca','Sensor del reloj'],['banda','Banda de pecho'],['ninguno','No la mido']]),
+    seg('potencia','¿Tienes potenciómetro de carrera?',[['no','No'],['stryd','Stryd'],['otro','Otro']]),
+    {id:'plataforma',l:'¿Dónde quedan registrados tus entrenamientos?',type:'multi',o:[['garmin','Garmin Connect'],['strava','Strava'],['tp','TrainingPeaks'],['coros','Coros'],['polar','Polar'],['apple','Apple Salud'],['otra','Otra']]},
+    seg('acceso_datos','¿Me darías acceso de lectura a esa plataforma?',YN),
+    seg('comprar','¿Comprarías equipo si te lo recomiendo?',[['si','Sí'],['quiza','Tal vez'],['no','No']],{help:'Por ejemplo, una banda de pecho o un potenciómetro.'}),
+    {type:'row',f:[num('fc_reposo','FC en reposo','lpm',{help:'Promedio de 7 días al despertar.'}),num('fc_max','FC más alta que has visto','lpm')]},
+    {id:'fc_max_origen',l:'¿De dónde sale esa FC máxima?',type:'select',o:[['test','Prueba de esfuerzo'],['carrera','Final de una carrera o test'],['formula','Una fórmula o el reloj'],['nose','No sé']]},
+    num('cadencia','Cadencia en un rodaje cómodo','ppm',{help:'Pasos por minuto. Aparece en tu reloj.'})]},
+  {t:'Salud',note:'Preguntas generales del cuestionario PAR-Q+. Un «sí» no te descarta: me dice qué revisar antes de pedirte esfuerzos máximos.',f:[
+    seg('pq1','¿Algún médico te ha dicho que tienes una afección cardíaca o presión arterial alta?',YN),
+    seg('pq2','¿Sientes dolor en el pecho en reposo, en tu día a día o al hacer actividad física?',YN),
+    seg('pq3','¿Has perdido el equilibrio por mareo, o el conocimiento, en los últimos 12 meses?',YN,{help:'Responde «no» si el mareo fue por respirar muy rápido durante un esfuerzo intenso.'}),
+    seg('pq4','¿Te han diagnosticado otra enfermedad crónica, distinta a la cardíaca o la presión alta?',YN),
+    seg('pq5','¿Tomas medicamentos recetados para una enfermedad crónica?',YN),
+    seg('pq6','¿Tienes, o tuviste en los últimos 12 meses, un problema de huesos, articulaciones, músculos, ligamentos o tendones que podría empeorar si aumentas tu actividad física?',YN,{help:'Responde «no» si fue en el pasado y hoy no te limita.'}),
+    seg('pq7','¿Algún médico te ha dicho que solo debes hacer actividad física con supervisión médica?',YN),
+    {id:'pq_detalle',l:'Cuéntame a cuál respondiste «sí» y qué te dijeron',type:'textarea',show:s=>PQ.some(k=>s[k]==='si')}]},
+  {t:'Lesiones de los últimos 12 meses',note:'Déjalo en blanco si no tuviste ninguna.',f:lesions},
+  {t:'Respiración',note:'Si no sabes alguna respuesta, déjala en blanco.',f:[
+    {id:'isr',type:'isr'},
+    {id:'resp_sint',l:'Al correr te pasa que…',type:'multi',o:[['disnea','Me falta el aire más de lo que debería'],['tos','Toso o me silba el pecho después del esfuerzo'],['flato','Me da flato (dolor en el costado)'],['nariz','No puedo respirar por la nariz ni a ritmo suave'],['nada','Nada de esto']]},
+    {id:'resp_reposo',l:'En reposo o al dormir',type:'multi',o:[['boca','Respiro por la boca'],['ronca','Ronco'],['congest','Tengo la nariz congestionada a menudo'],['nada','Nada de esto']]},
+    num('bolt','BOLT al despertar','s',{help:'Exhala normal, tápate la nariz y cuenta los segundos hasta las primeras ganas claras de respirar. No aguantes de más.'})]},
+  {t:'Ergoespirometría',f:[
+    seg('ergo','¿Te interesaría hacerte una ergoespirometría?',[['si','Sí'],['no','No por ahora'],['tengo','Ya tengo una']],{help:'Prueba de esfuerzo en caminadora con análisis de gases, por referencia a laboratorio. Da tus umbrales reales.'}),
+    {id:'ergo_nota',l:'Si ya tienes una, ¿cuándo y dónde fue?',type:'text',show:s=>s.ergo==='tengo',help:'Envíame el informe por WhatsApp.'}]},
+  {t:'Consentimiento',f:[
+    {id:'consent',l:'Autorizo a Rafael Quintana (Terapia Respiratoria) a usar estos datos solo para evaluarme y programar mi entrenamiento.',type:'check',req:1}]}
+ ]},
+autoeval:{n:'02',tab:'Autoevaluación',hash:'autoevaluacion',title:'Autoevaluación de movimiento',time:'15 min',freq:'Al inicio y cada 10–12 semanas',
+ lead:'Pruebas de movilidad que respondes tú, y videos que grabas para que yo los puntúe. Usa ropa que deje ver rodillas y tobillos. Para los videos, apoya el teléfono en algo fijo.',
+ sections:[
+  {t:'Tus datos',f:[{id:'nombre',l:'Nombre y apellido',type:'text',req:1}]},
+  {t:'Pruebas que respondes tú',note:'Haz cada una con las dos piernas. Si alguna te da corrientazo u hormigueo, detente y anótalo en el comentario final.',f:[
+    {type:'test',code:'T1',t:'Tobillo',how:['Siéntate en una silla con rodilla y tobillo doblados a 90°.','Sin mover el pie, desliza la cadera hacia adelante hasta que la rodilla pase la punta de los dedos.'],
+      f:[{id:'t1',l:'¿El talón se quedó apoyado en el piso?',type:'lr',o:YN}]},
+    {type:'test',code:'T2',t:'Dedo gordo',how:['En la misma posición, agarra el dedo gordo y levántalo recto.','La base del dedo tiene que seguir pegada al piso.'],
+      f:[{id:'t2',l:'¿Sube unos 30° sin que se levante la planta?',type:'lr',o:YN}]},
+    {type:'test',code:'T3',t:'Cadera',how:['Arrodíllate en una pierna dentro del marco de una puerta: muslo de atrás vertical y espinilla de adelante vertical.','Inclina la pelvis hacia atrás hasta pegar la zona lumbar al marco.'],
+      f:[{id:'t3',l:'¿Sientes estiramiento al frente del muslo de la pierna de atrás?',type:'lr',o:YN,help:'«Derecha» = rodilla derecha en el piso.'}]},
+    {type:'test',code:'T4',t:'Parte de atrás del muslo',how:['Acostado boca arriba, una pierna estirada en el piso.','Sube la otra pierna estirada sujetándola detrás del muslo.'],
+      f:[{id:'t4',l:'¿Llegas a unos 70° (un poco menos que vertical) sin tirantez fuerte?',type:'lr',o:YN}]},
+    {type:'test',code:'T5',t:'Control del dedo gordo',how:['De pie, empuja el dedo gordo contra el piso mientras levantas los otros cuatro.','El tobillo no se va ni hacia adentro ni hacia afuera.'],
+      f:[{id:'t5',l:'¿Pudiste sin que el dedo gordo se doblara?',type:'lr',o:YN}]},
+    {type:'test',code:'T6',t:'Postura con carga',how:['De pie y relajado, alguien detrás de ti presiona tus hombros hacia abajo con firmeza.'],
+      f:[seg('t6','¿Se te arqueó la espalda o perdiste la postura?',[['si','Sí'],['no','No'],['solo','No tuve quién me ayudara']])]},
+    num('cadencia','Cadencia en un rodaje cómodo','ppm',{help:'De tu último rodaje suave.'})]},
+  {t:'Videos para enviarme',note:'Grábalos, envíamelos por WhatsApp y marca cada uno como enviado.',f:[
+    {type:'test',code:'V1',t:'Equilibrio en una pierna',how:['Cámara de frente, cuerpo completo, manos en la cintura.','30 s sobre la derecha y 30 s sobre la izquierda.','Repite con los ojos cerrados.'],
+      f:[{type:'row',f:[num('v1_ojosD','Ojos cerrados, derecha','s',{max:30}),num('v1_ojosI','Ojos cerrados, izquierda','s',{max:30})]},{id:'v1',l:'Video grabado y enviado',type:'check'}]},
+    {type:'test',code:'V2',t:'Saltos en una pierna',how:['De frente, salta en el sitio 30 s sobre cada pierna.'],f:[{id:'v2',l:'Video grabado y enviado',type:'check'}]},
+    {type:'test',code:'V3',t:'Sentadilla a una pierna',how:['Cámara de frente, a la altura de la cadera. Que se vean pies, rodillas y hombros.','6 repeticiones lentas por pierna, bajando como para sentarte en una silla alta.'],f:[{id:'v3',l:'Video grabado y enviado',type:'check'}]},
+    {type:'test',code:'V4',t:'Sentadilla con dos piernas',how:['De perfil a la cámara, manos en la cintura.','5 repeticiones.'],f:[{id:'v4',l:'Video grabado y enviado',type:'check'}]},
+    {type:'test',code:'V5',t:'Puente',how:['Boca arriba, rodillas dobladas, brazos estirados hacia el techo con las manos juntas.','Sube la cadera y aguanta 30 s.','Levanta un pie unos centímetros y aguanta 30 s. Cambia de lado.'],
+      f:[seg('v5_donde','¿Dónde sentiste el esfuerzo?',[['gluteo','Glúteo'],['isquio','Atrás del muslo'],['lumbar','Zona lumbar'],['nose','No sé']]),{id:'v5',l:'Video grabado y enviado',type:'check'}]},
+    {type:'test',code:'V6',t:'Corriendo',how:['10–15 s a ritmo cómodo pasando de lado frente a la cámara.','Luego 10–15 s acercándote y alejándote de ella.','En cámara lenta si tu teléfono lo permite.'],f:[{id:'v6',l:'Video grabado y enviado',type:'check'}]},
+    {id:'coment',l:'Comentario',type:'textarea',ph:'Algo que te llamó la atención o te molestó'}]}
+ ]},
+checkin:{n:'03',tab:'Check-in',title:'Check-in semanal',time:'1 min',freq:'Cada domingo',
+ lead:'Cómo te fue esta semana. Responde aunque no hayas entrenado: eso también me sirve.',
+ sections:[
+  {t:'Tu semana',f:[
+    {type:'row',f:[{id:'nombre',l:'Nombre y apellido',type:'text',req:1},{id:'semana',l:'Semana que termina el',type:'date',req:1}]},
+    {type:'row',f:[num('ses_hechas','Sesiones hechas','',{min:0,max:14}),num('ses_plan','De las planificadas','',{min:0,max:14})]},
+    {id:'rpe',l:'¿Qué tan dura se sintió la semana?',type:'scale',min:1,max:10,help:'1 = muy suave · 10 = máximo esfuerzo.'},
+    {type:'row',f:[num('sueno','Sueño promedio','h',{step:0.5}),num('fc_rep','FC en reposo promedio','lpm')]},
+    {id:'sueno_cal',l:'Calidad del sueño',type:'scale',min:1,max:5,help:'1 = muy mala · 5 = excelente.'},
+    {id:'dolor',l:'Dolor o molestia más fuerte de la semana',type:'scale',min:0,max:10,help:'0 = nada · 10 = no pude correr.'},
+    {id:'dolor_zona',l:'¿Dónde?',type:'text',show:s=>+s.dolor>0},
+    {id:'estres',l:'Estrés fuera del entrenamiento',type:'scale',min:1,max:5,help:'1 = tranquilo · 5 = muy alto.'},
+    num('bolt','BOLT del domingo al despertar','s',{help:'Opcional.'}),
+    {id:'coment',l:'Comentario',type:'textarea'}]}
+ ]}
+};
+const MODS=Object.keys(SCHEMA);
+SCHEMA.ingreso.hash='ingreso'; SCHEMA.checkin.hash='checkin';
+
+/* ---------- utilidades ---------- */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const dec=n=>String(n).replace('.',',');
+const parseT=s=>{if(!s)return null;const p=String(s).trim().split(':').map(Number);if(p.some(isNaN)||p.length<2||p.length>3)return null;return p.reduce((a,b)=>a*60+b,0)};
+const fmtDate=v=>{if(!v)return '';const[y,m,d]=v.split('-');return `${d}/${m}/${y}`};
+const fmtIso=iso=>{try{return new Date(iso).toLocaleDateString('es-VE',{day:'numeric',month:'short',year:'numeric'})}catch(e){return iso}};
+const keyOf=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'sin-nombre';
+const hash=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return (h>>>0).toString(36)};
+const b64e=s=>{const b=new TextEncoder().encode(s);let o='';for(let i=0;i<b.length;i++)o+=String.fromCharCode(b[i]);return btoa(o)};
+const b64d=s=>new TextDecoder().decode(Uint8Array.from(atob(s),c=>c.charCodeAt(0)));
+
+
+/* ---------- assessment respiratorio (mismo dominio) ---------- */
+const WA='584142238924', WA_MAX=8000;
+let ASSESS=null;
+try{const r=JSON.parse(localStorage.getItem('rq-assessment-v1')||'null');if(r&&r.scores)ASSESS=r}catch(e){}
+function assessLines(a){
+  const s=a.scores||{};
+  return ['— Evaluación respiratoria (assessment) —',
+    `Fecha: ${fmtIso(a.fecha)}`,
+    `Índice de Salud Respiratoria: ${s.total}/45 · ${a.nivel||''}`,
+    `Mente ${s.mind}/15 · Cuerpo ${s.body}/15 · Deporte ${s.sport}/15`,
+    a.bolt?`BOLT (rango): ${a.bolt}`:'', a.mbt?`MBT ≥ 60 pasos: ${a.mbt}`:'',
+    a.imt?`Fase IMT sugerida: ${a.imt}`:'',''].filter((x,i,arr)=>x!==''||i===arr.length-1);
+}
+function isrHtml(m){
+  if(!ASSESS)return `<div class="isr none"><p><b>¿Ya hiciste la evaluación respiratoria gratuita?</b> Si la haces en este mismo teléfono o computadora, tu resultado se añade solo a esta ficha.</p><a class="link" href="/Assessment-Respiratorio/" target="_blank" rel="noopener">Hacer la evaluación (3 min) →</a></div>`;
+  const s=ASSESS.scores;
+  return `<div class="isr"><div class="isr-top"><div><span class="eyebrow">Tu evaluación respiratoria · ${esc(fmtIso(ASSESS.fecha))}</span>
+    <div class="isr-n"><b>${s.total}</b><span>/45</span> <em>${esc(ASSESS.nivel||'')}</em></div></div>
+    <div class="isr-p"><span>Mente <b>${s.mind}</b></span><span>Cuerpo <b>${s.body}</b></span><span>Deporte <b>${s.sport}</b></span></div></div>
+    <label class="chk"><input type="checkbox" id="${m}-isr_ok" data-m="${m}" data-k="isr_ok" data-check="1" checked><span>Incluir este resultado en mi ficha</span></label></div>`;
+}
+
+/* walk all leaf fields of a module */
+function leaves(m){const out=[];const walk=a=>a.forEach(f=>{if(f.type==='row'||f.type==='test')walk(f.f);else out.push(f)});SCHEMA[m].sections.forEach(s=>walk(s.f));return out}
+const FIELD={};MODS.forEach(m=>{FIELD[m]={};leaves(m).forEach(f=>FIELD[m][f.id]=f)});
+
+/* ---------- estado local ---------- */
+let cur='ingreso';
+const LS='rq-ficha-v1';
+let S={ingreso:{},autoeval:{},checkin:{}};
+try{const r=JSON.parse(localStorage.getItem(LS)||'null');if(r)MODS.forEach(m=>S[m]=Object.assign({},r[m]||{}))}catch(e){}
+let saveT;function persist(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}},300)}
+if(!S.autoeval.nombre&&S.ingreso.nombre)S.autoeval.nombre=S.ingreso.nombre;
+if(!S.checkin.nombre&&S.ingreso.nombre)S.checkin.nombre=S.ingreso.nombre;
+
+/* ---------- render de campos ---------- */
+function optsHtml(m,name,o,cls=''){return `<div class="opts ${cls}">${o.map(([v,l])=>`<label class="opt"><input type="radio" name="${m}-${name}" value="${esc(v)}" data-m="${m}" data-k="${name}"><span>${esc(l)}</span></label>`).join('')}</div>`}
+function fieldHtml(m,f){
+  if(f.type==='row')return `${f.l?`<div class="rowlab">${esc(f.l)}</div>`:''}<div class="row">${f.f.map(x=>fieldHtml(m,x)).join('')}</div>`;
+  if(f.type==='test')return `<div class="test"><div class="th"><span class="code">${f.code}</span><h4>${esc(f.t)}</h4></div><ol>${f.how.map(h=>`<li>${esc(h)}</li>`).join('')}</ol>${f.f.map(x=>fieldHtml(m,x)).join('')}</div>`;
+  const id=`${m}-${f.id}`, help=f.help?`<p class="help">${esc(f.help)}</p>`:'', cond=f.show?' data-cond="1"':'';
+  const lab=esc(f.l)+(f.req?' <span aria-hidden="true" style="color:var(--accent)">*</span>':'');
+  switch(f.type){
+    case 'isr': return isrHtml(m);
+    case 'seg': return `<fieldset class="fld" data-f="${f.id}"${cond}><legend>${lab}</legend>${help}${optsHtml(m,f.id,f.o)}</fieldset>`;
+    case 'scale':{const o=[];for(let i=f.min;i<=f.max;i++)o.push([String(i),String(i)]);return `<fieldset class="fld" data-f="${f.id}"${cond}><legend>${lab}</legend>${help}${optsHtml(m,f.id,o,'scale')}</fieldset>`}
+    case 'lr': return `<fieldset class="fld" data-f="${f.id}"${cond}><legend>${lab}</legend>${help}<div class="lr"><span class="side">Derecha</span>${optsHtml(m,f.id+'_D',f.o)}<span class="side">Izquierda</span>${optsHtml(m,f.id+'_I',f.o)}</div></fieldset>`;
+    case 'multi': return `<fieldset class="fld" data-f="${f.id}"${cond}><legend>${lab}</legend>${help}<div class="opts">${f.o.map(([v,l])=>`<label class="opt"><input type="checkbox" name="${id}" value="${esc(v)}" data-m="${m}" data-k="${f.id}" data-multi="1"><span>${esc(l)}</span></label>`).join('')}</div></fieldset>`;
+    case 'check': return `<div class="fld" data-f="${f.id}"${cond}><label class="chk"><input type="checkbox" id="${id}" data-m="${m}" data-k="${f.id}" data-check="1"><span>${lab}</span></label>${help}</div>`;
+    case 'select': return `<div class="fld" data-f="${f.id}"${cond}><label for="${id}">${lab}</label>${help}<select id="${id}" data-m="${m}" data-k="${f.id}"><option value="">Elige…</option>${f.o.map(([v,l])=>`<option value="${esc(v)}">${esc(l)}</option>`).join('')}</select></div>`;
+    case 'textarea': return `<div class="fld" data-f="${f.id}"${cond}><label for="${id}">${lab}</label>${help}<textarea id="${id}" data-m="${m}" data-k="${f.id}" placeholder="${esc(f.ph||'')}"></textarea></div>`;
+    case 'time': return `<div class="fld" data-f="${f.id}"${cond}><label for="${id}">${lab}</label>${help}<input type="text" inputmode="numeric" id="${id}" data-m="${m}" data-k="${f.id}" placeholder="h:mm:ss" autocomplete="off"></div>`;
+    case 'number': return `<div class="fld" data-f="${f.id}"${cond}><label for="${id}">${lab}</label>${help}<div class="unit"><input type="number" inputmode="decimal" id="${id}" data-m="${m}" data-k="${f.id}" ${f.min!=null?`min="${f.min}"`:''} ${f.max!=null?`max="${f.max}"`:''} step="${f.step||1}">${f.u?`<span>${esc(f.u)}</span>`:''}</div></div>`;
+    default: return `<div class="fld" data-f="${f.id}"${cond}><label for="${id}">${lab}</label>${help}<input type="${f.type==='date'?'date':'text'}" id="${id}" data-m="${m}" data-k="${f.id}" placeholder="${esc(f.ph||'')}" autocomplete="off"></div>`;
+  }
+}
+function moduleHtml(m){
+  const M=SCHEMA[m];
+  return `<section class="mod" id="mod-${m}" role="tabpanel" hidden>
+    <div class="mhead"><span class="eyebrow">Parte ${M.n} de 03</span><h2>${esc(M.title)}</h2><p>${esc(M.lead)}</p>
+      <div class="meta"><span class="chip acc">${esc(M.time)}</span><span class="chip">${esc(M.freq)}</span></div></div>
+    ${M.sections.map(s=>`<section class="sec"><header><h3>${esc(s.t)}</h3>${s.note?`<p class="note">${esc(s.note)}</p>`:''}</header>${s.f.map(f=>fieldHtml(m,f)).join('')}</section>`).join('')}
+    <div class="review" id="rev-${m}">
+      <h3>Enviar a Rafael</h3>
+      <p class="howto">Toca «Preparar respuestas» y luego «Enviar por WhatsApp». No borres el código del final: es lo que me permite cargar tu ficha. Si WhatsApp no abre, copia las respuestas y envíalas al <span class="num">+58 414 223 8924</span>.</p>
+      <div class="actions"><button class="btn pri" type="button" data-act="prep" data-m="${m}">Preparar respuestas</button></div>
+      <p class="missing" data-missing hidden></p>
+      <div data-outwrap hidden style="display:flex;flex-direction:column;gap:10px">
+        <textarea class="out" readonly data-out aria-label="Respuestas listas para copiar"></textarea>
+        <div class="actions">
+          <a class="btn pri wa" data-wa target="_blank" rel="noopener" href="#">Enviar por WhatsApp</a>
+          <button class="btn" type="button" data-act="copy" data-m="${m}">Copiar respuestas</button>
+          ${m==='checkin'?`<button class="btn ghost" type="button" data-act="newweek">Empezar una semana nueva</button>`:''}
+        </div>
+        <p class="status" data-status role="status"></p>
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ---------- valores y resumen ---------- */
+function labelOf(o,v){const x=o&&o.find(a=>a[0]===v);return x?x[1]:v}
+function valStr(f,d){
+  const v=d[f.id];
+  switch(f.type){
+    case 'seg':case 'select':return v?labelOf(f.o,v):'';
+    case 'multi':return Array.isArray(v)&&v.length?v.map(x=>labelOf(f.o,x)).join(', '):'';
+    case 'lr':{const a=d[f.id+'_D'],b=d[f.id+'_I'];return (a||b)?`D ${a?labelOf(f.o,a):'—'} · I ${b?labelOf(f.o,b):'—'}`:''}
+    case 'check':return v?'Sí':'';
+    case 'number':return (v!==undefined&&v!=='')?`${dec(v)}${f.u?' '+f.u:''}`:'';
+    case 'date':return fmtDate(v);
+    default:return v?String(v):'';
+  }
+}
+function visible(f,d){return !f.show||f.show(d)}
+function summaryLines(m,d){
+  const out=[];
+  SCHEMA[m].sections.forEach(s=>{
+    const lines=[];
+    const walk=(arr,prefix)=>arr.forEach(f=>{
+      if(f.type==='row')return walk(f.f,f.l?f.l+' · ':prefix);
+      if(f.type==='test')return walk(f.f,`${f.code} ${f.t} · `);
+      if(!visible(f,d))return;
+      const v=valStr(f,d); if(v)lines.push(`${prefix||''}${f.l}: ${v}`);
+    });
+    walk(s.f,'');
+    if(lines.length)out.push(`— ${s.t} —`,...lines,'');
+  });
+  return out;
+}
+async function packCode(obj){
+  const json=JSON.stringify(obj);
+  try{
+    if(typeof CompressionStream==='function'){
+      const buf=await new Response(new Blob([json]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer();
+      const b=new Uint8Array(buf);let o='';for(let i=0;i<b.length;i++)o+=String.fromCharCode(b[i]);
+      return `#RQ2#${btoa(o)}#FIN#`;
+    }
+  }catch(e){}
+  return `#RQ1#${b64e(json)}#FIN#`;
+}
+async function buildText(m){
+  const d=S[m], M=SCHEMA[m];
+  const useA=m==='ingreso'&&ASSESS&&d.isr_ok!==false;
+  const payload={v:1,t:m,s:'running',f:new Date().toISOString(),d};
+  if(useA)payload.a=ASSESS;
+  return [`FICHA DE CORREDOR · ${M.title.toUpperCase()}`,`Para Rafael Quintana · Terapia Respiratoria`,'',...summaryLines(m,d),...(useA?assessLines(ASSESS):[]),'(Código para Rafael, no lo borres)',await packCode(payload)].join('\n');
+}
+function missing(m){return leaves(m).filter(f=>f.req&&visible(f,S[m])&&!S[m][f.id]).map(f=>f.l)}
+function progress(m){const fs=leaves(m).filter(f=>visible(f,S[m])&&f.type!=='isr');let n=0,t=0;fs.forEach(f=>{if(f.type==='lr'){t+=2;if(S[m][f.id+'_D'])n++;if(S[m][f.id+'_I'])n++}else{t++;const v=S[m][f.id];if(Array.isArray(v)?v.length:(v!==undefined&&v!==''&&v!==false))n++}});return t?Math.round(n/t*100):0}
+
+/* ---------- montaje ---------- */
+const main=$('#main'), tabs=$('#tabs');
+main.innerHTML=MODS.map(moduleHtml).join('');
+function tabHtml(){return MODS.map(m=>`<button class="tab" role="tab" data-tab="${m}" aria-selected="false"><span class="n">${SCHEMA[m].n}</span>${esc(SCHEMA[m].tab)}<span class="pc" data-pc="${m}"></span></button>`).join('')}
+tabs.innerHTML=tabHtml();
+
+function fill(m){
+  const d=S[m];
+  $$(`[data-m="${m}"][data-k]`,$('#mod-'+m)).forEach(inp=>{
+    const k=inp.dataset.k;
+    if(inp.type==='radio')inp.checked=d[k]===inp.value;
+    else if(inp.dataset.multi)inp.checked=Array.isArray(d[k])&&d[k].includes(inp.value);
+    else if(inp.dataset.check)inp.checked=k==='isr_ok'?d[k]!==false:!!d[k];
+    else inp.value=d[k]??'';
+  });
+  conds(m);
+}
+function conds(m){$$('[data-cond]',$('#mod-'+m)).forEach(el=>{const f=FIELD[m][el.dataset.f];el.hidden=!visible(f,S[m])})}
+function updProgress(){MODS.forEach(m=>{const p=progress(m);const el=$(`[data-pc="${m}"]`);if(el)el.textContent=p?p+'%':''});const cur=current();$('#progbar').style.width=(SCHEMA[cur]?progress(cur):0)+'%'}
+MODS.forEach(fill); updProgress();
+
+main.addEventListener('input',onChange); main.addEventListener('change',onChange);
+function onChange(e){
+  const t=e.target; if(!t.dataset||!t.dataset.m||!t.dataset.k||!S[t.dataset.m])return;
+  const m=t.dataset.m,k=t.dataset.k;
+  if(t.dataset.multi){let a=$$(`input[data-m="${m}"][data-k="${k}"]:checked`,$('#mod-'+m)).map(x=>x.value);
+    if(e.type==='change'&&t.checked&&t.value==='nada'){a=['nada'];}
+    else if(e.type==='change'&&t.checked&&a.includes('nada')){a=a.filter(x=>x!=='nada')}
+    $$(`input[data-m="${m}"][data-k="${k}"]`,$('#mod-'+m)).forEach(x=>x.checked=a.includes(x.value));S[m][k]=a}
+  else if(t.dataset.check)S[m][k]=t.checked;
+  else if(t.type==='radio'){if(t.checked)S[m][k]=t.value}
+  else S[m][k]=t.value;
+  if(k==='nombre'&&m==='ingreso'){MODS.forEach(o=>{if(o!=='ingreso'&&!S[o].nombre){S[o].nombre=t.value;const i=$(`#${o}-nombre`);if(i)i.value=t.value}})}
+  conds(m); persist(); updProgress();
+  const out=$(`#rev-${m} [data-outwrap]`); if(out&&!out.hidden){out.hidden=true}
+}
+
+/* ---------- pestañas ---------- */
+const HASH={ingreso:'ingreso',autoevaluacion:'autoeval',checkin:'checkin',panel:'panel'};
+function current(){return cur}
+function show(m,push){
+  if(!SCHEMA[m])m='ingreso';
+  cur=m;
+  $$('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===m?'true':'false'));
+  $$('.mod').forEach(s=>s.hidden=s.id!=='mod-'+m);
+  updProgress();
+  if(push){try{history.replaceState(null,'','#'+(SCHEMA[m]?SCHEMA[m].hash:'panel'))}catch(e){}}
+}
+tabs.addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;show(b.dataset.tab,true);window.scrollTo({top:0})});
+const h=(location.hash||'').slice(1); show(HASH[h]||'ingreso');
+
+/* ---------- acciones del corredor ---------- */
+main.addEventListener('click',async e=>{
+  const b=e.target.closest('[data-act]'); if(!b)return;
+  const m=b.dataset.m, rev=m?$('#rev-'+m):null;
+  if(b.dataset.act==='prep'){
+    const miss=missing(m), mm=$('[data-missing]',rev);
+    if(miss.length){mm.textContent='Falta: '+miss.join(' · ');mm.hidden=false;return}
+    mm.hidden=true;
+    const txt=await buildText(m); $('[data-out]',rev).value=txt;
+    const wa=$('[data-wa]',rev), url='https://wa.me/'+WA+'?text='+encodeURIComponent(txt);
+    wa.href=url; wa.hidden=url.length>WA_MAX;
+    $('[data-outwrap]',rev).hidden=false; $('[data-status]',rev).textContent='';
+  }
+  if(b.dataset.act==='copy'){
+    const ta=$('[data-out]',rev), st=$('[data-status]',rev);
+    try{await navigator.clipboard.writeText(ta.value);st.textContent='Copiado. Pégalo en un mensaje de WhatsApp para Rafael.'}
+    catch(err){ta.focus();ta.select();st.textContent='Selecciona todo el texto de arriba y cópialo manualmente.'}
+  }
+  if(b.dataset.act==='newweek'){
+    const keep=S.checkin.nombre; S.checkin={nombre:keep}; persist(); fill('checkin'); updProgress();
+    $('#rev-checkin [data-outwrap]').hidden=true; window.scrollTo({top:0});
+  }
+});
+
+
+})();
+</script>
+</body>
+</html>
