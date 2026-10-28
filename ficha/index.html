@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ficha Deportiva · Terapia Respiratoria</title>
+<title>Ficha Personal · Terapia Respiratoria</title>
 <meta name="robots" content="noindex">
-<meta name="description" content="Ficha de ingreso, autoevaluación de movimiento y check-in semanal para los deportistas de Rafael Quintana.">
+<meta name="description" content="Ficha personal de ingreso y seguimiento para deportistas y pacientes de rehabilitación de Rafael Quintana.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
@@ -49,6 +49,8 @@ h1,h2,h3,h4{font-family:var(--display);font-weight:500;color:var(--teal-deep);li
 .dopt span{display:inline-block;padding:9px 15px;border-radius:100px;border:1px solid var(--line);background:var(--paper);font-size:14px;font-weight:500;color:var(--teal-deep)}
 .dopt input:checked+span{background:var(--copper);border-color:var(--copper);color:var(--cream)}
 .dopt input:focus-visible+span{outline:2px solid var(--teal);outline-offset:2px}
+.alerta{padding:16px 18px;border-radius:14px;background:#8A2E1F;color:#FFF6F0;font-weight:500;font-size:16px;line-height:1.5}
+body.is-rehab{font-size:17px}
 .src{font-size:12px;color:var(--muted);font-style:italic}
 
 /* Pestañas */
@@ -142,10 +144,10 @@ footer.foot{padding-block:28px 48px;border-top:1px solid var(--line);color:var(-
 <div class="top"><div class="wrap"><a class="logo" href="/">Terapia <span>Respiratoria</span></a><small>Rafael Quintana</small></div></div>
 <div class="wrap">
   <header class="hero">
-    <span class="eyebrow">Optimización deportiva</span>
-    <h1>Ficha deportiva · <em id="hero-disc">running</em></h1>
-    <p>Con esta ficha programo tu entrenamiento con datos reales. Tiene tres partes: el ingreso se llena una sola vez, la autoevaluación cuando tengas 15–20 minutos y un teléfono para grabarte, y el check-in cada domingo.</p>
-    <fieldset class="discs"><legend>Tu disciplina</legend><div class="dopts" id="disc"></div></fieldset>
+    <span class="eyebrow" id="hero-eyebrow">Optimización deportiva</span>
+    <h1>Ficha personal · <em id="hero-disc">running</em></h1>
+    <p id="hero-intro">Con esta ficha programo tu entrenamiento con datos reales. Tiene tres partes: el ingreso se llena una sola vez, la autoevaluación cuando tengas 15–20 minutos y un teléfono para grabarte, y el check-in cada domingo.</p>
+    <fieldset class="discs"><legend>¿Para qué es tu ficha?</legend><div class="dopts" id="disc"></div></fieldset>
   </header>
 </div>
 <div class="bar"><div class="wrap"><nav class="tabs" role="tablist" id="tabs"></nav></div><div class="prog"><i id="progbar"></i></div></div>
@@ -160,7 +162,7 @@ const YN=[['si','Sí'],['no','No']];
 const PQ=['pq1','pq2','pq3','pq4','pq5','pq6','pq7'];
 const DISCS=[
   ['running','Running'],['ciclismo','Ciclismo'],['natacion','Natación'],['triatlon','Triatlón'],
-  ['futbol','Fútbol'],['raqueta','Tenis / Pádel'],['fuerza','Fuerza / Gimnasio']
+  ['futbol','Deportes de equipo'],['raqueta','Tenis / Pádel'],['fuerza','Fuerza / Gimnasio']
 ];
 const DISC_LABEL=Object.fromEntries(DISCS);
 const num=(id,l,u,x={})=>Object.assign({id,l,type:'number',u},x);
@@ -280,14 +282,22 @@ triatlon:{
 },
 futbol:{
   meta:[['recreativo','Recreativo'],['amateur','Amateur competitivo'],['semipro','Semiprofesional'],['pro','Profesional'],['juvenil','Juvenil o academia']],
-  hist:{t:'Tu fútbol',src:'Strudwick, Soccer Science',f:[
-    row([sel('posicion','Posición',[['por','Portero'],['dc','Defensa central'],['lat','Lateral'],['mc','Mediocampista'],['ext','Extremo'],['del','Delantero']]),seg('pierna','Pierna hábil',[['der','Derecha'],['izq','Izquierda'],['ambas','Ambas']])]),
+  hist:{t:'Tu deporte',f:[
+    sel('deporte_eq','Deporte',[['futbol','Fútbol'],['futsal','Fútbol sala'],['basket','Baloncesto'],['voley','Voleibol'],['beisbol','Béisbol o sóftbol'],['rugby','Rugby'],['balonmano','Balonmano'],['hockey','Hockey'],['otro','Otro']],{req:1}),
+    txt('deporte_otro','¿Cuál?',{show:s=>s.deporte_eq==='otro'}),
+    sel('pos_futbol','Posición',[['por','Portero'],['dc','Defensa central'],['lat','Lateral'],['mc','Mediocampista'],['ext','Extremo'],['del','Delantero']],{show:s=>s.deporte_eq==='futbol'||s.deporte_eq==='futsal'}),
+    sel('pos_basket','Posición',[['base','Base'],['escolta','Escolta'],['alero','Alero'],['alapivot','Ala-pívot'],['pivot','Pívot']],{show:s=>s.deporte_eq==='basket'}),
+    sel('pos_voley','Posición',[['armador','Armador'],['opuesto','Opuesto'],['central','Central'],['receptor','Receptor-punta'],['libero','Líbero']],{show:s=>s.deporte_eq==='voley'}),
+    sel('pos_beis','Posición',[['lanzador','Lanzador'],['receptor','Receptor'],['cuadro','Cuadro'],['jardinero','Jardinero'],['bateador','Bateador designado']],{show:s=>s.deporte_eq==='beisbol'}),
+    txt('pos_otro','Posición',{show:s=>['rugby','balonmano','hockey','otro'].includes(s.deporte_eq)}),
+    seg('lado','Lado dominante',[['der','Derecho'],['izq','Izquierdo'],['ambos','Ambos']]),
     row([num('partidos','Partidos por semana','',{min:0,max:4}),num('minutos','Minutos promedio por partido','min'),num('entrenos','Entrenamientos de equipo por semana','',{min:0,max:10})]),
-    seg('superficie','Superficie habitual',[['natural','Césped natural'],['artificial','Césped artificial'],['futsal','Cancha de futsal'],['mixta','Mixta']]),
-    seg('fifa11','¿Tu equipo hace el calentamiento FIFA 11+?',[['si','Sí'],['no','No'],['nose','No sé']]),
-    seg('nordic','¿Haces ejercicio nórdico de isquiotibiales?',[['no','No'],['aveces','A veces'],['si','Cada semana']])]},
+    seg('superficie','Superficie habitual',[['natural','Césped natural'],['artificial','Césped artificial'],['madera','Cancha techada de madera'],['sintetica','Cancha sintética o cemento'],['arena','Arena'],['tierra','Tierra o arcilla']]),
+    seg('fifa11','¿Tu equipo hace el calentamiento FIFA 11+?',[['si','Sí'],['no','No'],['nose','No sé']],{show:s=>s.deporte_eq==='futbol'||s.deporte_eq==='futsal',src:'Strudwick, Soccer Science'}),
+    seg('nordic','¿Haces ejercicio nórdico de isquiotibiales?',[['no','No'],['aveces','A veces'],['si','Cada semana']]),
+    multi('molestias_eq','¿Te molesta algo al jugar?',[['hombro','Hombro'],['codo','Codo'],['lumbar','Zona lumbar'],['ingle','Ingle o aductores'],['isquio','Parte de atrás del muslo'],['rodilla','Rodilla'],['tobillo','Tobillo'],['nada','Nada']])]},
   marcas:{t:'Tests que ya te hayan hecho',note:'Si tu club te evaluó, anota lo último. Si no, déjalo en blanco.',f:[
-    row([txt('yoyo','Yo-Yo IR1 (nivel o metros)'),num('sprint10','Sprint 10 m','s',{step:0.01}),num('sprint30','Sprint 30 m','s',{step:0.01}),num('cmj','Salto vertical','cm')])]},
+    row([txt('yoyo','Yo-Yo IR1 (nivel o metros)'),num('sprint10','Sprint 10 m','s',{step:0.01}),num('sprint30','Sprint 30 m','s',{step:0.01}),num('cmj','Salto vertical','cm'),num('ttest','Test T de agilidad','s',{step:0.01})])]},
   equipo:[txt('reloj','Reloj o GPS (si usas)'),...FC_FIELDS.slice(0,2)],
   acceso:[['cancha','Cancha disponible fuera del equipo'],['gym','Gimnasio'],['pista','Pista de atletismo']]
 },
@@ -352,7 +362,7 @@ const V_SPORT={
   fuerza:test('V6','Tus básicos',['Una serie ligera de sentadilla y una de peso muerto (o bisagra de cadera), de perfil.'],[sent('v6')])};
 function autoTests(d){
   const self=[...T_DICHARRY];
-  if(['natacion','triatlon','raqueta','fuerza'].includes(d))self.push(...T_HOMBRO);
+  if(['natacion','triatlon','raqueta','fuerza','futbol'].includes(d))self.push(...T_HOMBRO);
   if(d==='natacion')self.push(...T_NADO);
   if(['futbol','raqueta','fuerza'].includes(d))self.push(T_SALTO);
   if(['raqueta','fuerza'].includes(d))self.push(T_FLEX);
@@ -412,9 +422,94 @@ function makeSchema(d){
   };
 }
 
-const MODS=['ingreso','autoeval','checkin'];
-let DISC=(()=>{try{const q=new URLSearchParams(location.search).get('d');if(q&&ING[q])return q;const r=JSON.parse(localStorage.getItem('rq-ficha-v1')||'null');if(r&&r.disc&&ING[r.disc])return r.disc}catch(e){}return 'running'})();
+/* ===== Rehabilitación cardiopulmonar (parte del paciente) =====
+   Fuentes: ERS/ATS Field Walking Tests (Holland 2014); ATS/ERS Pulmonary Rehabilitation (Spruit 2013);
+   AHA/AACVPR Core Components 2024; McConnell (IMT); Akpa 2024 (tos en neuromusculares); Walters (señales de alarma). */
+DISC_LABEL.rehab='Pacientes / Rehabilitación';
+DISCS.push(['rehab','Pacientes / Rehabilitación']);
+const URGENTE=[['pecho','Dolor u opresión en el pecho en reposo, o que no se quita'],['aire','Falta de aire en reposo que va empeorando'],['morado','Labios o dedos morados'],['desmayo','Desmayo reciente'],['sangre','Tos con sangre'],['fiebre','Fiebre con más dificultad para respirar'],['pierna','Una pierna hinchada, roja o dolorosa de repente'],['sat','Saturación en reposo de 85 % o menos (con tu oxígeno habitual)'],['nada','Nada de esto']];
+const urgentAlert=id=>({id:id+'_alerta',type:'alert',show:s=>Array.isArray(s[id])&&s[id].some(x=>x!=='nada'),
+  text:'Esto necesita atención médica hoy. No esperes a la consulta: acude a una emergencia o llama a tu médico. Puedes terminar la ficha después.'});
+const MMRC=[['0','Solo me falta el aire con ejercicio intenso'],['1','Me falta al caminar rápido o subir una pendiente leve'],['2','Camino más lento que otros de mi edad, o tengo que parar a respirar'],['3','Paro a respirar a los ~100 m o a los pocos minutos de caminar en plano'],['4','No salgo de casa por la falta de aire, o me falta al vestirme']];
+const CONDICIONES=[['epoc','EPOC'],['asma','Asma'],['post_inf','Después de COVID, influenza u otra infección respiratoria'],['fibrosis','Fibrosis pulmonar'],['ic','Insuficiencia cardíaca'],['neuromusc','Enfermedad neuromuscular'],['traqueo','Traqueostomía'],['vm','Ventilación mecánica'],['otra','Otra']];
+
+function makeRehabSchema(){
+  return {
+    ingreso:{n:'01',tab:'Ingreso',hash:'ingreso',title:'Ingreso del paciente',time:'10–12 min',freq:'Una sola vez, antes de la primera consulta',
+      lead:'Lo que necesito saber antes de verte. Si te ayuda un familiar o cuidador, puede llenarla por ti. Las pruebas físicas las hacemos juntos en la consulta.',
+      sections:[
+        {t:'Antes de empezar',note:'Si hoy tienes alguna de estas señales, primero busca atención médica.',f:[multi('urgente','¿Tienes hoy alguna de estas señales?',URGENTE),urgentAlert('urgente')]},
+        {t:'Datos del paciente',f:[
+          seg('llena','¿Quién llena la ficha?',[['paciente','El paciente'],['familiar','Un familiar o cuidador']]),
+          txt('cuidador','Nombre de quien ayuda',{show:s=>s.llena==='familiar'}),
+          txt('nombre','Nombre y apellido del paciente',{req:1}),
+          row([num('edad','Edad','años',{min:1,max:110}),sel('sexo','Sexo',[['f','Femenino'],['m','Masculino']])]),
+          row([num('peso','Peso','kg',{step:0.1}),num('talla','Talla','cm')]),
+          row([txt('contacto','WhatsApp o correo'),txt('ciudad','Ciudad')]),
+          seg('modalidad','¿Cómo prefieres las sesiones?',[['presencial','Presencial en Caracas'],['online','En línea'],['mixta','Mixta']])]},
+        {t:'Diagnóstico',f:[
+          multi('condicion','Condición principal',CONDICIONES),
+          txt('dx_detalle','Diagnóstico como lo escribió tu médico',{ph:'Ej.: EPOC GOLD 3; IC con FE reducida'}),
+          row([{id:'dx_fecha',l:'Fecha del diagnóstico',type:'date'},txt('medico','Médico tratante y especialidad')]),
+          seg('informe','¿Tienes un informe médico reciente (últimos 6 meses)?',[['si','Sí, lo envío'],['no','No']],{help:'Envíamelo por WhatsApp junto con espirometrías, ecocardiogramas o pruebas de esfuerzo que tengas.'})]},
+        {t:'Hospitalizaciones y crisis',f:[
+          row([num('hosp_12m','Hospitalizaciones en el último año','',{min:0}),{id:'hosp_ult',l:'Fecha de la última',type:'date'}]),
+          seg('uci','¿Has estado alguna vez en terapia intensiva o conectado a un ventilador?',YN),
+          num('exacerb_12m','Crisis o recaídas en el último año que necesitaron antibiótico o esteroide','',{min:0})]},
+        {t:'Medicación y soporte',f:[
+          multi('meds','¿Tomas alguno de estos?',[['rescate','Inhalador de rescate (ej. salbutamol)'],['mant','Inhalador de mantenimiento'],['cortico','Esteroide oral (ej. prednisona)'],['betabloq','Betabloqueante (ej. bisoprolol, carvedilol, metoprolol, nebivolol)'],['diuretico','Diurético (ej. furosemida)'],['anticoag','Anticoagulante'],['antiarr','Antiarrítmico (ej. amiodarona)'],['nada','Ninguno']]),
+          {id:'meds_lista',l:'Lista de medicamentos con dosis',type:'textarea',help:'O envía una foto de las cajas o de la receta.'},
+          seg('oxigeno','Oxígeno en casa',[['no','No uso'],['esfuerzo','Solo al hacer esfuerzo'],['noche','Solo de noche'],['continuo','Todo el día']]),
+          num('o2_lpm','Litros por minuto','L/min',{step:0.5,show:s=>s.oxigeno&&s.oxigeno!=='no'}),
+          multi('soporte','Otros soportes',[['cpap','CPAP'],['vni','BiPAP o ventilación no invasiva'],['traqueo','Traqueostomía'],['vm','Ventilador en casa'],['tos','Asistente de tos'],['nada','Ninguno']]),
+          txt('canula','Tipo y número de cánula',{show:s=>Array.isArray(s.soporte)&&s.soporte.includes('traqueo')}),
+          num('vm_horas','Horas al día con ventilador','h',{show:s=>Array.isArray(s.soporte)&&(s.soporte.includes('vm')||s.soporte.includes('vni'))})]},
+        {t:'Síntomas',f:[
+          seg('mmrc','¿Qué frase describe mejor tu falta de aire?',MMRC,{src:'Escala mMRC de disnea'}),
+          multi('sintomas','En el último mes has tenido…',[['flema','Tos con flema casi todos los días'],['sibilancias','Silbido en el pecho'],['pecho_esf','Dolor u opresión en el pecho al hacer esfuerzo'],['palpit','Palpitaciones'],['mareo','Mareo al hacer esfuerzo'],['edema','Tobillos hinchados'],['ortopnea','Necesito varias almohadas o me despierto ahogado'],['peso_rapido','Subí de peso rápido en pocos días'],['tos_debil','Tos débil, me cuesta botar la flema'],['atragant','Me atraganto al comer o beber'],['nada','Nada de esto']])]},
+        {t:'Tu día a día',f:[
+          seg('marcha','¿Cómo caminas?',[['solo','Sin ayuda'],['ayuda','Con bastón o andadera'],['silla','En silla de ruedas'],['cama','Paso la mayor parte del día en cama']]),
+          row([num('cuadras','¿Cuántas cuadras caminas sin parar?','',{min:0}),num('caidas_12m','Caídas en el último año','',{min:0})]),
+          seg('escalera','¿Subes un piso de escaleras sin parar?',[['si','Sí'],['pausas','Con pausas'],['no','No']]),
+          multi('avd','¿Te cuesta alguna de estas actividades?',[['vestirse','Vestirme'],['banarse','Bañarme'],['cocinar','Cocinar o limpiar'],['salir','Salir solo a la calle'],['nada','Ninguna']])]},
+        {t:'Mediciones en casa',note:'Solo si tienes los equipos. Mídelo sentado, después de 5 minutos de reposo.',f:[
+          multi('equipo_casa','Equipos que tienes',[['oximetro','Oxímetro'],['tensiometro','Tensiómetro'],['balanza','Balanza'],['flujometro','Medidor de flujo pico'],['nada','Ninguno']]),
+          row([num('spo2_casa','Saturación en reposo','%',{min:50,max:100}),num('fc_casa','Pulso en reposo','lpm')]),
+          row([num('pas_casa','Presión sistólica','mmHg'),num('pad_casa','Presión diastólica','mmHg')])]},
+        {t:'Otras condiciones',f:[
+          multi('comorb','¿Tienes alguna de estas?',[['hta','Hipertensión'],['diabetes','Diabetes'],['obesidad','Obesidad'],['osteo','Osteoporosis'],['artrosis','Artrosis o dolor articular'],['renal','Enfermedad renal'],['apnea','Apnea del sueño'],['animo','Ansiedad o depresión'],['nada','Ninguna']],{src:'AHA/AACVPR Core Components 2024'}),
+          seg('tabaco','Tabaco',[['nunca','Nunca fumé'],['ex','Exfumador'],['fuma','Fumo']]),
+          multi('vacunas','Vacunas al día',[['influenza','Influenza'],['neumococo','Neumococo'],['covid','COVID-19'],['nose','No sé']]),
+          multi('imt_prec','¿Has tenido alguna de estas?',[['neumo_esp','Neumotórax (pulmón colapsado) sin golpe previo'],['neumo_trauma','Neumotórax por golpe que no ha sanado'],['timpano','Tímpano perforado u otro problema de oído'],['bullas','Bullas pulmonares diagnosticadas'],['nada','Ninguna']],{src:'McConnell, Respiratory Muscle Training (precauciones del IMT)'})]},
+        {t:'Tus objetivos',f:[
+          multi('objetivos','¿Qué te gustaría lograr?',[['caminar','Caminar más sin ahogarme'],['escaleras','Subir escaleras'],['autonomia','Hacer mis cosas sin ayuda'],['trabajo','Volver a trabajar'],['oxigeno','Depender menos del oxígeno'],['ejercicio','Volver a hacer ejercicio o deporte'],['crisis','Tener menos crisis']]),
+          {id:'objetivo_txt',l:'En tus palabras',type:'textarea'}]},
+        {t:'Respiración',f:[{id:'isr',type:'isr'}]},
+        {t:'Consentimiento',f:[
+          {id:'consent',l:'Autorizo a Rafael Quintana (Terapia Respiratoria) a usar estos datos solo para evaluarme y programar mi rehabilitación. Entiendo que este programa no reemplaza la atención de mi médico.',type:'check',req:1},
+          {id:'consent_wa',l:'Acepto enviar estas respuestas por WhatsApp.',type:'check',req:1}]}
+      ]},
+    checkin:{n:'02',tab:'Seguimiento',hash:'checkin',title:'Seguimiento semanal',time:'2 min',freq:'Cada domingo',
+      lead:'Cómo estuviste esta semana. Si algo empeoró de golpe, no esperes al domingo: escríbeme o busca atención médica.',
+      sections:[{t:'Tu semana',f:[
+        multi('urgente','¿Tienes hoy alguna de estas señales?',URGENTE),urgentAlert('urgente'),
+        row([txt('nombre','Nombre del paciente',{req:1}),{id:'semana',l:'Semana que termina el',type:'date',req:1}]),
+        row([num('ses_hechas','Sesiones de ejercicio hechas','',{min:0,max:21}),num('ses_plan','De las planificadas','',{min:0,max:21}),num('imt_ses','Sesiones de IMT hechas','',{min:0,max:28})]),
+        {id:'borg_disnea',l:'Falta de aire en la sesión más dura',type:'scale',min:0,max:10,help:'0 = nada · 3 = moderada · 5 = fuerte · 7 = muy fuerte · 10 = máxima (escala de Borg).'},
+        {id:'fatiga',l:'Cansancio general',type:'scale',min:1,max:5,help:'1 = con energía · 5 = agotado.'},
+        multi('cambios','Esta semana tuviste…',[['mas_tos','Más tos o más flema'],['color','Flema de otro color'],['fiebre','Fiebre'],['edema','Más hinchazón en los tobillos'],['peso','Subí de peso rápido'],['pecho','Dolor u opresión en el pecho'],['mareo','Mareos'],['nada','Nada de esto']]),
+        num('rescate_veces','Veces que usaste el inhalador de rescate','',{min:0}),
+        row([num('spo2','Saturación en reposo (promedio)','%',{min:50,max:100}),num('fc_rep','Pulso en reposo','lpm'),num('peso','Peso','kg',{step:0.1})]),
+        {id:'sueno_cal',l:'¿Cómo dormiste?',type:'scale',min:1,max:5,help:'1 = muy mal · 5 = muy bien.'},
+        {id:'coment',l:'Comentario',type:'textarea'}]}]}
+  };
+}
+const _makeSchemaSport=makeSchema;
+makeSchema=function(d){return d==='rehab'?makeRehabSchema():_makeSchemaSport(d)};
+
+let DISC=(()=>{if(window.RQ_FIXED)return window.RQ_FIXED;const ok=v=>!!(ING[v]||v==='rehab');try{let q=new URLSearchParams(location.search).get('d');if(q==='equipo')q='futbol';if(q==='pacientes')q='rehab';if(ok(q))return q;const r=JSON.parse(localStorage.getItem('rq-ficha-v1')||'null');if(r&&ok(r.disc))return r.disc}catch(e){}return 'running'})();
 let SCHEMA=makeSchema(DISC);
+let MODS=Object.keys(SCHEMA);
 
 
 /* ---------- utilidades ---------- */
@@ -459,7 +554,7 @@ let FIELD={};function buildField(){FIELD={};MODS.forEach(m=>{FIELD[m]={};leaves(
 
 /* ---------- estado local ---------- */
 let cur='ingreso';
-const LS='rq-ficha-v1';
+const LS=window.RQ_FIXED==='rehab'?'rq-rehab-v1':'rq-ficha-v1';
 let S={ingreso:{},autoeval:{},checkin:{}};
 try{const r=JSON.parse(localStorage.getItem(LS)||'null');if(r)MODS.forEach(m=>S[m]=Object.assign({},r[m]||{}))}catch(e){}
 S.disc=DISC;
@@ -476,6 +571,7 @@ function fieldHtml(m,f){
   const lab=esc(f.l)+(f.req?' <span aria-hidden="true" style="color:var(--accent)">*</span>':'');
   switch(f.type){
     case 'isr': return isrHtml(m);
+    case 'alert': return `<div class="alerta" role="alert" data-f="${f.id}"${cond}>${esc(f.text)}</div>`;
     case 'seg': return `<fieldset class="fld" data-f="${f.id}"${cond}><legend>${lab}</legend>${help}${optsHtml(m,f.id,f.o)}</fieldset>`;
     case 'scale':{const o=[];for(let i=f.min;i<=f.max;i++)o.push([String(i),String(i)]);return `<fieldset class="fld" data-f="${f.id}"${cond}><legend>${lab}</legend>${help}${optsHtml(m,f.id,o,'scale')}</fieldset>`}
     case 'lr': return `<fieldset class="fld" data-f="${f.id}"${cond}><legend>${lab}</legend>${help}<div class="lr"><span class="side">Derecha</span>${optsHtml(m,f.id+'_D',f.o)}<span class="side">Izquierda</span>${optsHtml(m,f.id+'_I',f.o)}</div></fieldset>`;
@@ -491,7 +587,7 @@ function fieldHtml(m,f){
 function moduleHtml(m){
   const M=SCHEMA[m];
   return `<section class="mod" id="mod-${m}" role="tabpanel" hidden>
-    <div class="mhead"><span class="eyebrow">Parte ${M.n} de 03</span><h2>${esc(M.title)}</h2><p>${esc(M.lead)}</p>
+    <div class="mhead"><span class="eyebrow">Parte ${M.n} de ${String(MODS.length).padStart(2,'0')}</span><h2>${esc(M.title)}</h2><p>${esc(M.lead)}</p>
       <div class="meta"><span class="chip acc">${esc(M.time)}</span><span class="chip">${esc(M.freq)}</span></div></div>
     ${M.sections.map(s=>`<section class="sec"><header><h3>${esc(s.t)}</h3>${s.note?`<p class="note">${esc(s.note)}</p>`:''}${s.src?`<p class="src">Fuente: ${esc(s.src)}</p>`:''}</header>${s.f.map(f=>fieldHtml(m,f)).join('')}</section>`).join('')}
     <div class="review" id="rev-${m}">
@@ -559,10 +655,10 @@ async function buildText(m){
   const keep={};leaves(m).forEach(f=>{if(f.type==='lr'){['_D','_I'].forEach(x=>{if(d[f.id+x]!==undefined)keep[f.id+x]=d[f.id+x]})}else if(d[f.id]!==undefined&&d[f.id]!==''&&visible(f,d))keep[f.id]=d[f.id]});
   const payload={v:2,t:m,s:DISC,f:new Date().toISOString(),d:keep};
   if(useA)payload.a=ASSESS;
-  return [`FICHA DEPORTIVA · ${DISC_LABEL[DISC].toUpperCase()} · ${M.title.toUpperCase()}`,`Para Rafael Quintana · Terapia Respiratoria`,'',...summaryLines(m,keep),...(useA?assessLines(ASSESS):[]),'(Código para Rafael, no lo borres)',await packCode(payload)].join('\n');
+  return [`FICHA PERSONAL · ${DISC_LABEL[DISC].toUpperCase()} · ${M.title.toUpperCase()}`,`Para Rafael Quintana · Terapia Respiratoria`,'',...summaryLines(m,keep),...(useA?assessLines(ASSESS):[]),'(Código para Rafael, no lo borres)',await packCode(payload)].join('\n');
 }
 function missing(m){return leaves(m).filter(f=>f.req&&visible(f,S[m])&&!S[m][f.id]).map(f=>f.l)}
-function progress(m){const fs=leaves(m).filter(f=>visible(f,S[m])&&f.type!=='isr');let n=0,t=0;fs.forEach(f=>{if(f.type==='lr'){t+=2;if(S[m][f.id+'_D'])n++;if(S[m][f.id+'_I'])n++}else{t++;const v=S[m][f.id];if(Array.isArray(v)?v.length:(v!==undefined&&v!==''&&v!==false))n++}});return t?Math.round(n/t*100):0}
+function progress(m){const fs=leaves(m).filter(f=>visible(f,S[m])&&f.type!=='isr'&&f.type!=='alert');let n=0,t=0;fs.forEach(f=>{if(f.type==='lr'){t+=2;if(S[m][f.id+'_D'])n++;if(S[m][f.id+'_I'])n++}else{t++;const v=S[m][f.id];if(Array.isArray(v)?v.length:(v!==undefined&&v!==''&&v!==false))n++}});return t?Math.round(n/t*100):0}
 
 /* ---------- montaje ---------- */
 const main=$('#main'), tabs=$('#tabs');
@@ -588,15 +684,25 @@ MODS.forEach(fill); updProgress();
 /* ---------- selector de disciplina ---------- */
 const discEl=$('#disc');
 function discHtml(){return DISCS.map(([v,l])=>`<label class="dopt"><input type="radio" name="disc" value="${v}" ${v===DISC?'checked':''}><span>${esc(l)}</span></label>`).join('')}
-function setHero(){const e=$('#hero-disc');if(e)e.textContent=DISC_LABEL[DISC].toLowerCase()}
-discEl.innerHTML=discHtml(); setHero();
+const PARTES=' Tiene tres partes: el ingreso, que se llena una sola vez; la autoevaluación de movimiento, cuando tengas 15–20 minutos y un teléfono para grabarte; y el check-in de cada domingo.';
+const HERO={
+  running:['Optimización deportiva · Running','Con esta ficha programo tu entrenamiento de carrera con datos reales: tus kilómetros, tus marcas recientes, tu reloj y cómo te mueves.'+PARTES],
+  ciclismo:['Optimización deportiva · Ciclismo','Con esta ficha programo tu entrenamiento en bici con datos reales: tus horas, tu potencia si tienes potenciómetro, tu bici y cómo te mueves.'+PARTES],
+  natacion:['Optimización deportiva · Natación','Con esta ficha programo tu entrenamiento en el agua con datos reales: tus metros, tus marcas en piscina y la movilidad de hombros, columna y tobillos.'+PARTES],
+  triatlon:['Optimización deportiva · Triatlón','Con esta ficha programo las tres disciplinas con datos reales: tus horas en cada una, tus umbrales y cuál es tu disciplina más débil.'+PARTES],
+  futbol:['Optimización deportiva · Deportes de equipo','Con esta ficha programo tu preparación física con datos reales: tu deporte y tu posición, la carga de partidos y entrenamientos, tus molestias y los tests que te haya hecho tu club.'+PARTES],
+  raqueta:['Optimización deportiva · Tenis y pádel','Con esta ficha programo tu preparación física con datos reales: tus horas de juego, tu nivel, cómo están tu hombro, codo y muñeca, y cómo te mueves en la pista.'+PARTES],
+  fuerza:['Optimización deportiva · Fuerza','Con esta ficha programo tu entrenamiento de fuerza con datos reales: tus años entrenando, tus marcas actuales, cómo progresas y cómo te mueves.'+PARTES],
+  rehab:['Salud · Rehabilitación cardiopulmonar','Con esta ficha preparo tu primera consulta. Tiene dos partes: el ingreso, que se llena una sola vez, y el seguimiento de cada domingo. Si te ayuda un familiar o cuidador, puede llenarla por ti. Las pruebas físicas (saturación, presión, fuerza respiratoria y caminata) las hacemos juntos en la consulta.']};
+function setHero(){const e=$('#hero-disc');if(e)e.textContent=DISC_LABEL[DISC].toLowerCase();const h=HERO[DISC]||HERO.running;const eb=$('#hero-eyebrow'),it=$('#hero-intro');if(eb)eb.textContent=h[0];if(it)it.textContent=h[1];document.body.classList.toggle('is-rehab',DISC==='rehab')}
+if(discEl){discEl.innerHTML=discHtml(); setHero();
 discEl.addEventListener('change',e=>{
-  const v=e.target.value; if(!ING[v]||v===DISC)return;
-  DISC=v; S.disc=v; SCHEMA=makeSchema(v); buildField();
+  const v=e.target.value; if(!(ING[v]||v==='rehab')||v===DISC)return;
+  DISC=v; S.disc=v; SCHEMA=makeSchema(v); MODS=Object.keys(SCHEMA); buildField();
   main.innerHTML=MODS.map(moduleHtml).join(''); tabs.innerHTML=tabHtml();
   MODS.forEach(fill); setHero(); persist(); show(cur,true);
   try{const u=new URL(location.href);u.searchParams.set('d',v);history.replaceState(null,'',u)}catch(err){}
-});
+});}
 
 main.addEventListener('input',onChange); main.addEventListener('change',onChange);
 function onChange(e){
