@@ -13,22 +13,22 @@
 /* Mismos tokens que la landing (ralejql-ai.github.io) */
 :root{
   --teal-deep:#0D3B3E; --teal:#14545A; --teal-soft:#2E7177;
-  --copper:#C2734A; --copper-deep:#AC5F38;
+  --copper:#C2734A; --copper-soft:#D89066; --copper-deep:#AC5F38;
   --cream:#F8F3EA; --cream-deep:#EFE7D8; --paper:#FFFDF9;
   --ink:#1C2628; --muted:rgba(28,38,40,.66); --line:rgba(13,59,62,.16);
   --warn:#8A4B12; --warn-soft:#F6E3CF;
   --display:'Cormorant Garamond',Georgia,serif;
-  --body:'DM Sans',-apple-system,'Segoe UI',sans-serif;
+  --body:'DM Sans',-apple-system,sans-serif;
   color-scheme:light;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 [hidden]{display:none!important}
-body{font-family:var(--body);background:var(--cream);color:var(--ink);line-height:1.6;font-weight:400;-webkit-font-smoothing:antialiased;font-size:16px}
+body{font-family:var(--body);background:var(--cream);color:var(--ink);line-height:1.65;font-weight:300;-webkit-font-smoothing:antialiased;font-size:16px}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--copper);outline-offset:3px;border-radius:2px}
 .wrap{max-width:760px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
 h1,h2,h3,h4{font-family:var(--display);font-weight:500;color:var(--teal-deep);line-height:1.12;text-wrap:balance}
-.eyebrow{font-size:11px;letter-spacing:.24em;text-transform:uppercase;font-weight:500;color:var(--copper)}
+.eyebrow{font-size:11px;letter-spacing:.28em;text-transform:uppercase;font-weight:500;color:var(--copper)}
 .num{font-variant-numeric:tabular-nums;white-space:nowrap;user-select:all;font-weight:500}
 
 /* Marca */
@@ -42,7 +42,7 @@ h1,h2,h3,h4{font-family:var(--display);font-weight:500;color:var(--teal-deep);li
 .hero h1 em{font-style:italic;color:var(--copper)}
 .hero p{color:var(--muted);max-width:58ch;font-weight:300;font-size:17px}
 .discs{border:0;display:flex;flex-direction:column;gap:8px;margin-top:6px}
-.discs legend{font-size:11px;letter-spacing:.24em;text-transform:uppercase;font-weight:500;color:var(--teal);margin-bottom:8px}
+.discs legend{font-size:11px;letter-spacing:.28em;text-transform:uppercase;font-weight:500;color:var(--teal);margin-bottom:8px}
 .dopts{display:flex;flex-wrap:wrap;gap:6px}
 .dopt{position:relative;cursor:pointer}
 .dopt input{position:absolute;opacity:0;inset:0;cursor:pointer}
@@ -91,7 +91,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
 .opts{display:flex;flex-wrap:wrap;gap:6px}
 .opt{position:relative;cursor:pointer}
 .opt input{position:absolute;opacity:0;inset:0;cursor:pointer}
-.opt span{display:inline-block;padding:10px 15px;border:1px solid var(--line);border-radius:100px;background:var(--paper);font-size:15px;line-height:1.2}
+.opt span{display:inline-block;font-weight:400;padding:10px 15px;border:1px solid var(--line);border-radius:100px;background:var(--paper);font-size:15px;line-height:1.2}
 .opt input:checked+span{background:var(--teal);border-color:var(--teal);color:var(--cream)}
 .opt input:focus-visible+span{outline:2px solid var(--copper);outline-offset:2px}
 .scale .opt span{min-width:44px;text-align:center;font-variant-numeric:tabular-nums}
@@ -125,7 +125,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
 .review h3{font-size:28px}
 .howto{font-size:15px;font-weight:300}
 .actions{display:flex;flex-wrap:wrap;gap:10px}
-.btn{display:inline-flex;align-items:center;gap:8px;font:500 14px/1 var(--body);letter-spacing:.03em;padding:14px 24px;border-radius:100px;border:1px solid var(--teal);background:transparent;color:var(--teal);cursor:pointer;text-decoration:none}
+.btn{display:inline-flex;align-items:center;gap:10px;font:500 14px/1 var(--body);letter-spacing:.04em;padding:15px 30px;transition:all .25s;border-radius:100px;border:1px solid var(--teal);background:transparent;color:var(--teal);cursor:pointer;text-decoration:none}
 .btn.pri{background:var(--teal);color:var(--cream)}
 .btn.pri:hover{background:var(--teal-deep)}
 .btn.wa{background:var(--copper);border-color:var(--copper);color:var(--cream)}
