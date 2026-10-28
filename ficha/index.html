@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ficha de Corredor · Terapia Respiratoria</title>
+<title>Ficha Deportiva · Terapia Respiratoria</title>
 <meta name="robots" content="noindex">
-<meta name="description" content="Ficha de ingreso, autoevaluación de movimiento y check-in semanal para los corredores de Rafael Quintana.">
+<meta name="description" content="Ficha de ingreso, autoevaluación de movimiento y check-in semanal para los deportistas de Rafael Quintana.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
@@ -41,6 +41,15 @@ h1,h2,h3,h4{font-family:var(--display);font-weight:500;color:var(--teal-deep);li
 .hero h1{font-size:clamp(40px,8vw,58px)}
 .hero h1 em{font-style:italic;color:var(--copper)}
 .hero p{color:var(--muted);max-width:58ch;font-weight:300;font-size:17px}
+.discs{border:0;display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.discs legend{font-size:11px;letter-spacing:.24em;text-transform:uppercase;font-weight:500;color:var(--teal);margin-bottom:8px}
+.dopts{display:flex;flex-wrap:wrap;gap:6px}
+.dopt{position:relative;cursor:pointer}
+.dopt input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.dopt span{display:inline-block;padding:9px 15px;border-radius:100px;border:1px solid var(--line);background:var(--paper);font-size:14px;font-weight:500;color:var(--teal-deep)}
+.dopt input:checked+span{background:var(--copper);border-color:var(--copper);color:var(--cream)}
+.dopt input:focus-visible+span{outline:2px solid var(--teal);outline-offset:2px}
+.src{font-size:12px;color:var(--muted);font-style:italic}
 
 /* Pestañas */
 .bar{position:sticky;top:0;z-index:20;background:var(--paper);border-block:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
@@ -71,7 +80,7 @@ section.sec{display:flex;flex-direction:column;gap:18px;padding-top:26px;border-
 .fld{display:flex;flex-direction:column;gap:7px;min-width:0;border:0}
 .fld>label,.fld>legend{font-weight:500;font-size:15px;color:var(--ink)}
 .help{font-size:13.5px;color:var(--muted)}
-.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;align-items:end}
 .rowlab{font-family:var(--display);font-style:italic;font-size:19px;color:var(--teal);margin-bottom:-8px}
 input[type=text],input[type=number],input[type=date],select,textarea{width:100%;font:16px var(--body);color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-height:48px}
 textarea{min-height:96px;resize:vertical}
@@ -133,9 +142,10 @@ footer.foot{padding-block:28px 48px;border-top:1px solid var(--line);color:var(-
 <div class="top"><div class="wrap"><a class="logo" href="/">Terapia <span>Respiratoria</span></a><small>Rafael Quintana</small></div></div>
 <div class="wrap">
   <header class="hero">
-    <span class="eyebrow">Optimización deportiva · Running</span>
-    <h1>Ficha de <em>corredor</em></h1>
-    <p>Con esta ficha programo tu entrenamiento con datos reales. Tiene tres partes: el ingreso se llena una sola vez, la autoevaluación cuando tengas 15 minutos y un teléfono para grabarte, y el check-in cada domingo.</p>
+    <span class="eyebrow">Optimización deportiva</span>
+    <h1>Ficha deportiva · <em id="hero-disc">running</em></h1>
+    <p>Con esta ficha programo tu entrenamiento con datos reales. Tiene tres partes: el ingreso se llena una sola vez, la autoevaluación cuando tengas 15–20 minutos y un teléfono para grabarte, y el check-in cada domingo.</p>
+    <fieldset class="discs"><legend>Tu disciplina</legend><div class="dopts" id="disc"></div></fieldset>
   </header>
 </div>
 <div class="bar"><div class="wrap"><nav class="tabs" role="tablist" id="tabs"></nav></div><div class="prog"><i id="progbar"></i></div></div>
@@ -144,115 +154,268 @@ footer.foot{padding-block:28px 48px;border-top:1px solid var(--line);color:var(-
 <script>
 
 (()=>{
+/* ===== Esquema de la ficha deportiva (compartido entre la landing y el Panel de Rafael) =====
+   Núcleo común + módulo por disciplina. Cada test indica su fuente en `src`. */
 const YN=[['si','Sí'],['no','No']];
 const PQ=['pq1','pq2','pq3','pq4','pq5','pq6','pq7'];
-const DIST=[['3','3 km'],['5','5 km'],['10','10 km'],['15','15 km'],['21.0975','Medio maratón'],['42.195','Maratón']];
+const DISCS=[
+  ['running','Running'],['ciclismo','Ciclismo'],['natacion','Natación'],['triatlon','Triatlón'],
+  ['futbol','Fútbol'],['raqueta','Tenis / Pádel'],['fuerza','Fuerza / Gimnasio']
+];
+const DISC_LABEL=Object.fromEntries(DISCS);
 const num=(id,l,u,x={})=>Object.assign({id,l,type:'number',u},x);
 const seg=(id,l,o,x={})=>Object.assign({id,l,type:'seg',o},x);
-const marks=[1,2,3].map(i=>({type:'row',l:`Marca ${i}`,f:[{id:`m${i}_d`,l:'Distancia',type:'select',o:DIST},{id:`m${i}_t`,l:'Tiempo',type:'time'},{id:`m${i}_f`,l:'Fecha',type:'date'}]}));
-const lesions=[1,2].map(i=>({type:'row',l:`Lesión ${i}`,f:[{id:`les${i}`,l:'Lesión o molestia',type:'text',ph:'Ej.: rodilla derecha'},num(`les${i}_sem`,'Semanas sin correr','sem'),num(`les${i}_hoy`,'Dolor hoy (0–10)','',{min:0,max:10})]}));
+const sel=(id,l,o,x={})=>Object.assign({id,l,type:'select',o},x);
+const multi=(id,l,o,x={})=>Object.assign({id,l,type:'multi',o},x);
+const txt=(id,l,x={})=>Object.assign({id,l,type:'text'},x);
+const row=(f,l)=>({type:'row',f,l});
+const test=(code,t,how,f,src)=>({type:'test',code,t,how,f,src});
+const sent=id=>({id,l:'Video grabado y enviado',type:'check'});
+const DIST=[['3','3 km'],['5','5 km'],['10','10 km'],['15','15 km'],['21.0975','Medio maratón'],['42.195','Maratón']];
+const PLATF=[['garmin','Garmin Connect'],['strava','Strava'],['tp','TrainingPeaks'],['coros','Coros'],['polar','Polar'],['apple','Apple Salud'],['zwift','Zwift / rodillo'],['otra','Otra']];
+const marks=(p,o)=>[1,2,3].map(i=>row([sel(`${p}${i}_d`,'Distancia',o),{id:`${p}${i}_t`,l:'Tiempo',type:'time'},{id:`${p}${i}_f`,l:'Fecha',type:'date'}],`Marca ${i}`));
+const weeks=(p,l,u)=>row([num(p+'1','Hace 4 sem.',u),num(p+'2','Hace 3',u),num(p+'3','Hace 2',u),num(p+'4','La última',u)],l);
 
-const SCHEMA={
-ingreso:{n:'01',tab:'Ingreso',title:'Ingreso',time:'7–10 min',freq:'Una sola vez',
- lead:'Quién eres, qué quieres lograr y con qué cuentas. Con esto defino tu perfil y el primer test de campo que vamos a hacer.',
- sections:[
-  {t:'Tus datos',f:[
-    {id:'nombre',l:'Nombre y apellido',type:'text',req:1},
-    {type:'row',f:[num('edad','Edad','años',{min:12,max:99}),{id:'sexo',l:'Sexo',type:'select',o:[['f','Femenino'],['m','Masculino']]}]},
-    {type:'row',f:[num('peso','Peso','kg',{step:0.1}),num('talla','Talla','cm')]},
-    {type:'row',f:[{id:'contacto',l:'WhatsApp o correo',type:'text'},{id:'ciudad',l:'Ciudad',type:'text'}]}]},
-  {t:'Tu objetivo',f:[
-    {id:'meta',l:'¿Qué quieres lograr?',type:'select',o:[['salud','Correr por salud, sin carrera definida'],['terminar','Terminar un 5K o 10K sin sufrir'],['marca','Bajar mi marca en una distancia'],['21k','Preparar un medio maratón'],['42k','Preparar un maratón'],['trail','Trail o ultra']]},
-    {type:'row',f:[{id:'carrera',l:'Carrera objetivo',type:'text',ph:'Ej.: 10K Caracas'},{id:'fecha_carrera',l:'Fecha',type:'date'}]},
-    {type:'row',f:[{id:'prioridad',l:'¿Qué tan importante es?',type:'select',o:[['A','A · la carrera del año'],['B','B · importante'],['C','C · de preparación']]},{id:'tiempo_meta',l:'Tiempo meta',type:'time'}]}]},
-  {t:'Cómo vienes corriendo',note:'Toma los datos de tu reloj o app, no de memoria.',f:[
-    {type:'row',f:[{id:'anios',l:'¿Hace cuánto corres?',type:'select',o:[['0','Estoy empezando'],['1','Menos de 1 año'],['2','1 a 3 años'],['3','Más de 3 años']]},num('dias_semana','Días que corres por semana','días',{min:0,max:7})]},
-    {type:'row',l:'Kilómetros por semana, últimas 4 semanas',f:[num('km1','Hace 4 sem.','km'),num('km2','Hace 3','km'),num('km3','Hace 2','km'),num('km4','La última','km')]},
-    {type:'row',f:[num('larga_km','Tirada más larga del último mes','km',{step:0.1}),{id:'larga_t',l:'En cuánto tiempo',type:'time'}]}]},
-  {t:'Marcas recientes',note:'Hasta tres carreras o contrarrelojes de los últimos 3 meses, de distancias distintas si puedes. Con dos ya puedo ver cómo se comporta tu resistencia.',f:marks},
-  {t:'Disponibilidad',f:[
-    {id:'dias',l:'Días en que puedes entrenar',type:'multi',o:[['lu','Lun'],['ma','Mar'],['mi','Mié'],['ju','Jue'],['vi','Vie'],['sa','Sáb'],['do','Dom']]},
-    {type:'row',f:[num('min_sem','Minutos por sesión entre semana','min'),num('min_fds','Minutos el fin de semana','min')]},
-    {id:'acceso',l:'Tienes acceso a',type:'multi',o:[['pista','Pista de atletismo'],['cinta','Caminadora'],['gym','Gimnasio'],['cuestas','Cuestas cerca'],['plano','Circuito plano y fijo']]},
-    seg('fuerza','¿Haces trabajo de fuerza?',[['no','No'],['1','1 vez por semana'],['2','2 o más']])]},
-  {t:'Tu equipo',note:'Esto define qué tests puedes hacer. No hace falta comprar nada para empezar.',f:[
-    {id:'reloj',l:'Reloj (marca y modelo)',type:'text',ph:'Ej.: Garmin Forerunner 255'},
-    seg('sensor','¿Cómo mides la frecuencia cardíaca?',[['muneca','Sensor del reloj'],['banda','Banda de pecho'],['ninguno','No la mido']]),
+/* ---------- Bloques del núcleo ---------- */
+const S_DATOS={t:'Tus datos',f:[
+  txt('nombre','Nombre y apellido',{req:1}),
+  row([num('edad','Edad','años',{min:12,max:99}),sel('sexo','Sexo',[['f','Femenino'],['m','Masculino']])]),
+  row([num('peso','Peso','kg',{step:0.1}),num('talla','Talla','cm')]),
+  row([txt('contacto','WhatsApp o correo'),txt('ciudad','Ciudad')])]};
+const S_DISPON={t:'Disponibilidad',f:[
+  multi('dias','Días en que puedes entrenar',[['lu','Lun'],['ma','Mar'],['mi','Mié'],['ju','Jue'],['vi','Vie'],['sa','Sáb'],['do','Dom']]),
+  row([num('min_sem','Minutos por sesión entre semana','min'),num('min_fds','Minutos el fin de semana','min')]),
+  seg('fuerza_hab','¿Haces trabajo de fuerza?',[['no','No'],['1','1 vez por semana'],['2','2 o más']])]};
+const S_SALUD={t:'Salud',note:'Preguntas generales del cuestionario PAR-Q+. Un «sí» no te descarta: me dice qué revisar antes de pedirte esfuerzos máximos.',f:[
+  seg('pq1','¿Algún médico te ha dicho que tienes una afección cardíaca o presión arterial alta?',YN),
+  seg('pq2','¿Sientes dolor en el pecho en reposo, en tu día a día o al hacer actividad física?',YN),
+  seg('pq3','¿Has perdido el equilibrio por mareo, o el conocimiento, en los últimos 12 meses?',YN,{help:'Responde «no» si el mareo fue por respirar muy rápido durante un esfuerzo intenso.'}),
+  seg('pq4','¿Te han diagnosticado otra enfermedad crónica, distinta a la cardíaca o la presión alta?',YN),
+  seg('pq5','¿Tomas medicamentos recetados para una enfermedad crónica?',YN),
+  seg('pq6','¿Tienes, o tuviste en los últimos 12 meses, un problema de huesos, articulaciones, músculos, ligamentos o tendones que podría empeorar si aumentas tu actividad física?',YN,{help:'Responde «no» si fue en el pasado y hoy no te limita.'}),
+  seg('pq7','¿Algún médico te ha dicho que solo debes hacer actividad física con supervisión médica?',YN),
+  {id:'pq_detalle',l:'Cuéntame a cuál respondiste «sí» y qué te dijeron',type:'textarea',show:s=>PQ.some(k=>s[k]==='si')},
+  multi('alarmas','¿Tienes hoy alguna de estas señales?',[['noche','Dolor en reposo o de noche que no cede'],['trauma','Golpe o caída fuerte reciente'],['peso','Pérdida de peso sin explicación'],['fiebre','Fiebre, escalofríos o sudores nocturnos'],['neuro','Debilidad u hormigueo que avanza en piernas o brazos'],['vejiga','Cambios al orinar'],['nada','Ninguna']],{src:'Walters y Cordoza, Rehab Science (señales de alarma)'})]};
+const lesionRows=[1,2].map(i=>row([txt(`les${i}`,'Lesión o molestia',{ph:'Ej.: isquiotibial derecho'}),num(`les${i}_sem`,'Semanas sin entrenar','sem'),num(`les${i}_hoy`,'Dolor hoy (0–10)','',{min:0,max:10})],`Lesión ${i}`));
+const S_LESION={t:'Lesiones de los últimos 12 meses',note:'Déjalo en blanco si no tuviste ninguna.',f:lesionRows};
+const S_RESP={t:'Respiración',note:'Si no sabes alguna respuesta, déjala en blanco.',f:[
+  {id:'isr',type:'isr'},
+  multi('resp_sint','Al entrenar te pasa que…',[['disnea','Me falta el aire más de lo que debería'],['tos','Toso o me silba el pecho'],['garganta','Siento la garganta cerrada, «como respirar por un pitillo»'],['flato','Me da flato (dolor en el costado)'],['nariz','No puedo respirar por la nariz ni a ritmo suave'],['nada','Nada de esto']]),
+  seg('resp_inicio','Si te falta el aire, ¿cuándo empieza?',[['rapido','En los primeros 1–5 min de esfuerzo intenso'],['tarde','Después de 15–30 min, o al terminar'],['nose','No sé']],{show:s=>Array.isArray(s.resp_sint)&&s.resp_sint.some(x=>['disnea','tos','garganta'].includes(x)),src:'Dickinson y Hull (EILO vs. broncoespasmo)'}),
+  seg('resp_ruido','¿Hace ruido al respirar?',[['inhalar','Al tomar aire'],['exhalar','Al soltar el aire'],['no','No']],{show:s=>Array.isArray(s.resp_sint)&&s.resp_sint.some(x=>['disnea','tos','garganta'].includes(x))}),
+  seg('resp_dura','Al parar, ¿cuánto tarda en pasar?',[['corto','Menos de 5 min'],['largo','30 min o más']],{show:s=>Array.isArray(s.resp_sint)&&s.resp_sint.some(x=>['disnea','tos','garganta'].includes(x))}),
+  seg('inhalador','¿Usas inhalador para el asma o al entrenar?',[['no','No'],['si_ayuda','Sí, y me ayuda'],['si_no','Sí, pero no me ayuda']]),
+  multi('resp_reposo','En reposo o al dormir',[['boca','Respiro por la boca'],['ronca','Ronco'],['congest','Tengo la nariz congestionada a menudo'],['nada','Nada de esto']]),
+  num('bolt','BOLT al despertar','s',{help:'Exhala normal, tápate la nariz y cuenta los segundos hasta las primeras ganas claras de respirar. No aguantes de más.'})]};
+const S_ERGO={t:'Ergoespirometría',f:[
+  seg('ergo','¿Te interesaría hacerte una ergoespirometría?',[['si','Sí'],['no','No por ahora'],['tengo','Ya tengo una']],{help:'Prueba de esfuerzo con análisis de gases, por referencia a laboratorio. Da tus umbrales reales.'}),
+  txt('ergo_nota','Si ya tienes una, ¿cuándo y dónde fue?',{show:s=>s.ergo==='tengo',help:'Envíame el informe por WhatsApp.'})]};
+const S_CONSENT={t:'Consentimiento',f:[{id:'consent',l:'Autorizo a Rafael Quintana (Terapia Respiratoria) a usar estos datos solo para evaluarme y programar mi entrenamiento.',type:'check',req:1}]};
+const FC_FIELDS=[
+  seg('sensor','¿Cómo mides la frecuencia cardíaca?',[['muneca','Sensor del reloj'],['banda','Banda de pecho'],['ninguno','No la mido']]),
+  row([num('fc_reposo','FC en reposo','lpm',{help:'Promedio de 7 días al despertar.'}),num('fc_max','FC más alta que has visto','lpm')]),
+  sel('fc_max_origen','¿De dónde sale esa FC máxima?',[['test','Prueba de esfuerzo'],['carrera','Final de una carrera o test'],['formula','Una fórmula o el reloj'],['nose','No sé']])];
+const COMPRAR=seg('comprar','¿Comprarías equipo si te lo recomiendo?',[['si','Sí'],['quiza','Tal vez'],['no','No']]);
+
+/* ---------- Módulos por disciplina (ingreso) ---------- */
+const ING={
+running:{
+  meta:[['salud','Correr por salud, sin carrera definida'],['terminar','Terminar un 5K o 10K sin sufrir'],['marca','Bajar mi marca en una distancia'],['21k','Preparar un medio maratón'],['42k','Preparar un maratón'],['trail','Trail o ultra']],
+  hist:{t:'Cómo vienes corriendo',note:'Toma los datos de tu reloj o app, no de memoria.',f:[
+    row([sel('anios','¿Hace cuánto corres?',[['0','Estoy empezando'],['1','Menos de 1 año'],['2','1 a 3 años'],['3','Más de 3 años']]),num('dias_semana','Días que corres por semana','días',{min:0,max:7})]),
+    weeks('km','Kilómetros por semana, últimas 4 semanas','km'),
+    row([num('larga_km','Tirada más larga del último mes','km',{step:0.1}),{id:'larga_t',l:'En cuánto tiempo',type:'time'}])]},
+  marcas:{t:'Marcas recientes',note:'Hasta tres carreras o contrarrelojes de los últimos 3 meses, de distancias distintas si puedes. Con dos ya puedo ver cómo se comporta tu resistencia.',f:marks('m',DIST)},
+  equipo:[txt('reloj','Reloj (marca y modelo)',{ph:'Ej.: Garmin Forerunner 255'}),...FC_FIELDS,
     seg('potencia','¿Tienes potenciómetro de carrera?',[['no','No'],['stryd','Stryd'],['otro','Otro']]),
-    {id:'plataforma',l:'¿Dónde quedan registrados tus entrenamientos?',type:'multi',o:[['garmin','Garmin Connect'],['strava','Strava'],['tp','TrainingPeaks'],['coros','Coros'],['polar','Polar'],['apple','Apple Salud'],['otra','Otra']]},
-    seg('acceso_datos','¿Me darías acceso de lectura a esa plataforma?',YN),
-    seg('comprar','¿Comprarías equipo si te lo recomiendo?',[['si','Sí'],['quiza','Tal vez'],['no','No']],{help:'Por ejemplo, una banda de pecho o un potenciómetro.'}),
-    {type:'row',f:[num('fc_reposo','FC en reposo','lpm',{help:'Promedio de 7 días al despertar.'}),num('fc_max','FC más alta que has visto','lpm')]},
-    {id:'fc_max_origen',l:'¿De dónde sale esa FC máxima?',type:'select',o:[['test','Prueba de esfuerzo'],['carrera','Final de una carrera o test'],['formula','Una fórmula o el reloj'],['nose','No sé']]},
-    num('cadencia','Cadencia en un rodaje cómodo','ppm',{help:'Pasos por minuto. Aparece en tu reloj.'})]},
-  {t:'Salud',note:'Preguntas generales del cuestionario PAR-Q+. Un «sí» no te descarta: me dice qué revisar antes de pedirte esfuerzos máximos.',f:[
-    seg('pq1','¿Algún médico te ha dicho que tienes una afección cardíaca o presión arterial alta?',YN),
-    seg('pq2','¿Sientes dolor en el pecho en reposo, en tu día a día o al hacer actividad física?',YN),
-    seg('pq3','¿Has perdido el equilibrio por mareo, o el conocimiento, en los últimos 12 meses?',YN,{help:'Responde «no» si el mareo fue por respirar muy rápido durante un esfuerzo intenso.'}),
-    seg('pq4','¿Te han diagnosticado otra enfermedad crónica, distinta a la cardíaca o la presión alta?',YN),
-    seg('pq5','¿Tomas medicamentos recetados para una enfermedad crónica?',YN),
-    seg('pq6','¿Tienes, o tuviste en los últimos 12 meses, un problema de huesos, articulaciones, músculos, ligamentos o tendones que podría empeorar si aumentas tu actividad física?',YN,{help:'Responde «no» si fue en el pasado y hoy no te limita.'}),
-    seg('pq7','¿Algún médico te ha dicho que solo debes hacer actividad física con supervisión médica?',YN),
-    {id:'pq_detalle',l:'Cuéntame a cuál respondiste «sí» y qué te dijeron',type:'textarea',show:s=>PQ.some(k=>s[k]==='si')}]},
-  {t:'Lesiones de los últimos 12 meses',note:'Déjalo en blanco si no tuviste ninguna.',f:lesions},
-  {t:'Respiración',note:'Si no sabes alguna respuesta, déjala en blanco.',f:[
-    {id:'isr',type:'isr'},
-    {id:'resp_sint',l:'Al correr te pasa que…',type:'multi',o:[['disnea','Me falta el aire más de lo que debería'],['tos','Toso o me silba el pecho después del esfuerzo'],['flato','Me da flato (dolor en el costado)'],['nariz','No puedo respirar por la nariz ni a ritmo suave'],['nada','Nada de esto']]},
-    {id:'resp_reposo',l:'En reposo o al dormir',type:'multi',o:[['boca','Respiro por la boca'],['ronca','Ronco'],['congest','Tengo la nariz congestionada a menudo'],['nada','Nada de esto']]},
-    num('bolt','BOLT al despertar','s',{help:'Exhala normal, tápate la nariz y cuenta los segundos hasta las primeras ganas claras de respirar. No aguantes de más.'})]},
-  {t:'Ergoespirometría',f:[
-    seg('ergo','¿Te interesaría hacerte una ergoespirometría?',[['si','Sí'],['no','No por ahora'],['tengo','Ya tengo una']],{help:'Prueba de esfuerzo en caminadora con análisis de gases, por referencia a laboratorio. Da tus umbrales reales.'}),
-    {id:'ergo_nota',l:'Si ya tienes una, ¿cuándo y dónde fue?',type:'text',show:s=>s.ergo==='tengo',help:'Envíame el informe por WhatsApp.'}]},
-  {t:'Consentimiento',f:[
-    {id:'consent',l:'Autorizo a Rafael Quintana (Terapia Respiratoria) a usar estos datos solo para evaluarme y programar mi entrenamiento.',type:'check',req:1}]}
- ]},
-autoeval:{n:'02',tab:'Autoevaluación',hash:'autoevaluacion',title:'Autoevaluación de movimiento',time:'15 min',freq:'Al inicio y cada 10–12 semanas',
- lead:'Pruebas de movilidad que respondes tú, y videos que grabas para que yo los puntúe. Usa ropa que deje ver rodillas y tobillos. Para los videos, apoya el teléfono en algo fijo.',
- sections:[
-  {t:'Tus datos',f:[{id:'nombre',l:'Nombre y apellido',type:'text',req:1}]},
-  {t:'Pruebas que respondes tú',note:'Haz cada una con las dos piernas. Si alguna te da corrientazo u hormigueo, detente y anótalo en el comentario final.',f:[
-    {type:'test',code:'T1',t:'Tobillo',how:['Siéntate en una silla con rodilla y tobillo doblados a 90°.','Sin mover el pie, desliza la cadera hacia adelante hasta que la rodilla pase la punta de los dedos.'],
-      f:[{id:'t1',l:'¿El talón se quedó apoyado en el piso?',type:'lr',o:YN}]},
-    {type:'test',code:'T2',t:'Dedo gordo',how:['En la misma posición, agarra el dedo gordo y levántalo recto.','La base del dedo tiene que seguir pegada al piso.'],
-      f:[{id:'t2',l:'¿Sube unos 30° sin que se levante la planta?',type:'lr',o:YN}]},
-    {type:'test',code:'T3',t:'Cadera',how:['Arrodíllate en una pierna dentro del marco de una puerta: muslo de atrás vertical y espinilla de adelante vertical.','Inclina la pelvis hacia atrás hasta pegar la zona lumbar al marco.'],
-      f:[{id:'t3',l:'¿Sientes estiramiento al frente del muslo de la pierna de atrás?',type:'lr',o:YN,help:'«Derecha» = rodilla derecha en el piso.'}]},
-    {type:'test',code:'T4',t:'Parte de atrás del muslo',how:['Acostado boca arriba, una pierna estirada en el piso.','Sube la otra pierna estirada sujetándola detrás del muslo.'],
-      f:[{id:'t4',l:'¿Llegas a unos 70° (un poco menos que vertical) sin tirantez fuerte?',type:'lr',o:YN}]},
-    {type:'test',code:'T5',t:'Control del dedo gordo',how:['De pie, empuja el dedo gordo contra el piso mientras levantas los otros cuatro.','El tobillo no se va ni hacia adentro ni hacia afuera.'],
-      f:[{id:'t5',l:'¿Pudiste sin que el dedo gordo se doblara?',type:'lr',o:YN}]},
-    {type:'test',code:'T6',t:'Postura con carga',how:['De pie y relajado, alguien detrás de ti presiona tus hombros hacia abajo con firmeza.'],
-      f:[seg('t6','¿Se te arqueó la espalda o perdiste la postura?',[['si','Sí'],['no','No'],['solo','No tuve quién me ayudara']])]},
-    num('cadencia','Cadencia en un rodaje cómodo','ppm',{help:'De tu último rodaje suave.'})]},
-  {t:'Videos para enviarme',note:'Grábalos, envíamelos por WhatsApp y marca cada uno como enviado.',f:[
-    {type:'test',code:'V1',t:'Equilibrio en una pierna',how:['Cámara de frente, cuerpo completo, manos en la cintura.','30 s sobre la derecha y 30 s sobre la izquierda.','Repite con los ojos cerrados.'],
-      f:[{type:'row',f:[num('v1_ojosD','Ojos cerrados, derecha','s',{max:30}),num('v1_ojosI','Ojos cerrados, izquierda','s',{max:30})]},{id:'v1',l:'Video grabado y enviado',type:'check'}]},
-    {type:'test',code:'V2',t:'Saltos en una pierna',how:['De frente, salta en el sitio 30 s sobre cada pierna.'],f:[{id:'v2',l:'Video grabado y enviado',type:'check'}]},
-    {type:'test',code:'V3',t:'Sentadilla a una pierna',how:['Cámara de frente, a la altura de la cadera. Que se vean pies, rodillas y hombros.','6 repeticiones lentas por pierna, bajando como para sentarte en una silla alta.'],f:[{id:'v3',l:'Video grabado y enviado',type:'check'}]},
-    {type:'test',code:'V4',t:'Sentadilla con dos piernas',how:['De perfil a la cámara, manos en la cintura.','5 repeticiones.'],f:[{id:'v4',l:'Video grabado y enviado',type:'check'}]},
-    {type:'test',code:'V5',t:'Puente',how:['Boca arriba, rodillas dobladas, brazos estirados hacia el techo con las manos juntas.','Sube la cadera y aguanta 30 s.','Levanta un pie unos centímetros y aguanta 30 s. Cambia de lado.'],
-      f:[seg('v5_donde','¿Dónde sentiste el esfuerzo?',[['gluteo','Glúteo'],['isquio','Atrás del muslo'],['lumbar','Zona lumbar'],['nose','No sé']]),{id:'v5',l:'Video grabado y enviado',type:'check'}]},
-    {type:'test',code:'V6',t:'Corriendo',how:['10–15 s a ritmo cómodo pasando de lado frente a la cámara.','Luego 10–15 s acercándote y alejándote de ella.','En cámara lenta si tu teléfono lo permite.'],f:[{id:'v6',l:'Video grabado y enviado',type:'check'}]},
-    {id:'coment',l:'Comentario',type:'textarea',ph:'Algo que te llamó la atención o te molestó'}]}
- ]},
-checkin:{n:'03',tab:'Check-in',title:'Check-in semanal',time:'1 min',freq:'Cada domingo',
- lead:'Cómo te fue esta semana. Responde aunque no hayas entrenado: eso también me sirve.',
- sections:[
-  {t:'Tu semana',f:[
-    {type:'row',f:[{id:'nombre',l:'Nombre y apellido',type:'text',req:1},{id:'semana',l:'Semana que termina el',type:'date',req:1}]},
-    {type:'row',f:[num('ses_hechas','Sesiones hechas','',{min:0,max:14}),num('ses_plan','De las planificadas','',{min:0,max:14})]},
-    {id:'rpe',l:'¿Qué tan dura se sintió la semana?',type:'scale',min:1,max:10,help:'1 = muy suave · 10 = máximo esfuerzo.'},
-    {type:'row',f:[num('sueno','Sueño promedio','h',{step:0.5}),num('fc_rep','FC en reposo promedio','lpm')]},
-    {id:'sueno_cal',l:'Calidad del sueño',type:'scale',min:1,max:5,help:'1 = muy mala · 5 = excelente.'},
-    {id:'dolor',l:'Dolor o molestia más fuerte de la semana',type:'scale',min:0,max:10,help:'0 = nada · 10 = no pude correr.'},
-    {id:'dolor_zona',l:'¿Dónde?',type:'text',show:s=>+s.dolor>0},
-    {id:'estres',l:'Estrés fuera del entrenamiento',type:'scale',min:1,max:5,help:'1 = tranquilo · 5 = muy alto.'},
-    num('bolt','BOLT del domingo al despertar','s',{help:'Opcional.'}),
-    {id:'coment',l:'Comentario',type:'textarea'}]}
- ]}
-};
-const MODS=Object.keys(SCHEMA);
-SCHEMA.ingreso.hash='ingreso'; SCHEMA.checkin.hash='checkin';
+    multi('plataforma','¿Dónde quedan registrados tus entrenamientos?',PLATF),seg('acceso_datos','¿Me darías acceso de lectura a esa plataforma?',YN),COMPRAR,
+    num('cadencia','Cadencia en un rodaje cómodo','ppm',{help:'Pasos por minuto. Aparece en tu reloj.'})],
+  acceso:[['pista','Pista de atletismo'],['cinta','Caminadora'],['gym','Gimnasio'],['cuestas','Cuestas cerca'],['plano','Circuito plano y fijo']]
+},
+ciclismo:{
+  meta:[['salud','Rodar por salud o cicloturismo'],['fondo','Gran fondo o marcha'],['ruta','Competir en ruta'],['crono','Contrarreloj'],['mtb','MTB o gravel'],['indoor','Entreno sobre todo en rodillo']],
+  hist:{t:'Cómo vienes rodando',note:'Toma los datos de tu ciclocomputador o app.',f:[
+    row([sel('anios','¿Hace cuánto montas?',[['0','Estoy empezando'],['1','Menos de 1 año'],['2','1 a 3 años'],['3','Más de 3 años']]),num('dias_semana','Días que montas por semana','días',{min:0,max:7})]),
+    weeks('h','Horas por semana, últimas 4 semanas','h'),
+    row([num('larga_km','Salida más larga del último mes','km'),num('larga_h','Duración','h',{step:0.5}),num('desnivel','Desnivel típico por salida','m')])]},
+  marcas:{t:'Tus números de potencia',note:'Si tienes potenciómetro. Si no, salta esta sección.',src:'Allen y Coggan; Friel',f:[
+    row([num('ftp','FTP actual','W'),sel('ftp_origen','¿Cómo lo obtuviste?',[['20','Test de 20 min (−5 %)'],['8','Test de 8 min (−10 %)'],['30','Contrarreloj de 30 min'],['rampa','Test de rampa'],['app','Lo estima la app'],['nose','No sé']]),{id:'ftp_f',l:'Fecha',type:'date'}]),
+    row([num('p5s','Mejor 5 s','W'),num('p1m','Mejor 1 min','W'),num('p5m','Mejor 5 min','W'),num('p20m','Mejor 20 min','W')],'Mejores potencias de los últimos 3 meses (perfil de potencia)')]},
+  equipo:[txt('reloj','Ciclocomputador o reloj',{ph:'Ej.: Garmin Edge 530'}),...FC_FIELDS,
+    seg('potencia','¿Tienes potenciómetro?',[['no','No'],['pedales','Pedales'],['biela','Biela o araña'],['rodillo','Solo el del rodillo inteligente']]),
+    seg('rodillo','¿Tienes rodillo?',[['no','No'],['clasico','Clásico'],['smart','Inteligente']]),
+    seg('bici','Bici principal',[['ruta','Ruta'],['tt','Cabra o triatlón'],['mtb','MTB'],['gravel','Gravel']]),
+    seg('bikefit','¿Te han hecho un ajuste profesional de la bici (bike fit)?',YN),
+    multi('plataforma','¿Dónde quedan registrados tus entrenamientos?',PLATF),seg('acceso_datos','¿Me darías acceso de lectura a esa plataforma?',YN),COMPRAR,
+    num('cadencia','Cadencia típica en llano','rpm')],
+  acceso:[['puerto','Puerto o subida constante'],['llano','Tramo llano y seguro de 8–16 km'],['rodillo','Rodillo en casa'],['gym','Gimnasio']]
+},
+natacion:{
+  meta:[['salud','Nadar por salud o fitness'],['tecnica','Mejorar mi técnica'],['masters','Competir en másters'],['abiertas','Aguas abiertas'],['tri','Prepararme para triatlón']],
+  hist:{t:'Cómo vienes nadando',f:[
+    row([sel('anios','¿Hace cuánto nadas con regularidad?',[['0','Estoy empezando'],['1','Menos de 1 año'],['2','1 a 3 años'],['3','Más de 3 años']]),num('dias_semana','Sesiones por semana','',{min:0,max:14})]),
+    weeks('mt','Metros por semana, últimas 4 semanas','m'),
+    seg('estilo','Estilo principal',[['libre','Libre'],['espalda','Espalda'],['pecho','Pecho'],['mariposa','Mariposa'],['combinado','Combinado']]),
+    seg('base130','¿Puedes nadar 10 × 100 m libre saliendo cada 1:30?',[['si','Sí'],['no','No'],['nose','No sé']],{help:'Incluye nado y al menos 15 s de descanso por repetición.',src:'Lucero, Challenge Workouts'}),
+    seg('piscina','¿Dónde nadas?',[['25','Piscina de 25 m'],['50','Piscina de 50 m'],['abiertas','Aguas abiertas'],['varios','Varios']])]},
+  marcas:{t:'Marcas recientes',note:'De los últimos 3 meses, en piscina.',f:[
+    row([{id:'n100',l:'100 m libre',type:'time',ph:'m:ss'},{id:'n400',l:'400 m libre',type:'time',ph:'m:ss'},{id:'n1000',l:'1000 m libre',type:'time',ph:'m:ss'}])]},
+  equipo:[txt('reloj','Reloj de natación (si tienes)'),...FC_FIELDS,
+    multi('material','Material que tienes',[['pull','Pull buoy'],['aletas','Aletas'],['paletas','Paletas'],['tubo','Tubo frontal'],['tabla','Tabla']]),COMPRAR],
+  acceso:[['piscina','Piscina con reloj de ritmo'],['gym','Gimnasio'],['abiertas','Aguas abiertas']]
+},
+triatlon:{
+  meta:[['sprint','Sprint'],['olimpico','Olímpico'],['703','Medio Ironman (70.3)'],['ironman','Ironman'],['otro','Otro formato']],
+  hist:{t:'Cómo vienes entrenando',note:'Horas promedio por semana del último mes.',f:[
+    row([sel('anios','¿Hace cuánto haces triatlón?',[['0','Estoy empezando'],['1','Menos de 1 año'],['2','1 a 3 años'],['3','Más de 3 años']]),num('tri_carreras','Triatlones terminados','',{min:0})]),
+    row([num('h_swim','Natación','h/sem',{step:0.5}),num('h_bike','Ciclismo','h/sem',{step:0.5}),num('h_run','Carrera','h/sem',{step:0.5})],'Horas por semana'),
+    seg('limitante','¿Cuál sientes que es tu disciplina más débil?',[['swim','Natación'],['bike','Ciclismo'],['run','Carrera']])]},
+  marcas:{t:'Tus números',note:'Lo que tengas. Si no sabes alguno, déjalo en blanco.',src:'Friel, The Triathlete’s Training Bible',f:[
+    row([{id:'n1000',l:'1000 m nadando',type:'time',ph:'m:ss'},num('ftp','FTP en bici','W'),{id:'r5k',l:'Mejor 5K corriendo',type:'time'},{id:'r10k',l:'Mejor 10K',type:'time'}])]},
+  equipo:[txt('reloj','Reloj multideporte'),...FC_FIELDS,
+    seg('potencia','¿Tienes potenciómetro en la bici?',[['no','No'],['si','Sí'],['rodillo','Solo el del rodillo']]),
+    seg('potencia_run','¿Tienes potenciómetro de carrera?',[['no','No'],['stryd','Stryd'],['otro','Otro']]),
+    multi('plataforma','¿Dónde quedan registrados tus entrenamientos?',PLATF),seg('acceso_datos','¿Me darías acceso de lectura a esa plataforma?',YN),COMPRAR],
+  acceso:[['piscina','Piscina'],['abiertas','Aguas abiertas'],['rodillo','Rodillo'],['pista','Pista de atletismo'],['gym','Gimnasio']]
+},
+futbol:{
+  meta:[['recreativo','Recreativo'],['amateur','Amateur competitivo'],['semipro','Semiprofesional'],['pro','Profesional'],['juvenil','Juvenil o academia']],
+  hist:{t:'Tu fútbol',src:'Strudwick, Soccer Science',f:[
+    row([sel('posicion','Posición',[['por','Portero'],['dc','Defensa central'],['lat','Lateral'],['mc','Mediocampista'],['ext','Extremo'],['del','Delantero']]),seg('pierna','Pierna hábil',[['der','Derecha'],['izq','Izquierda'],['ambas','Ambas']])]),
+    row([num('partidos','Partidos por semana','',{min:0,max:4}),num('minutos','Minutos promedio por partido','min'),num('entrenos','Entrenamientos de equipo por semana','',{min:0,max:10})]),
+    seg('superficie','Superficie habitual',[['natural','Césped natural'],['artificial','Césped artificial'],['futsal','Cancha de futsal'],['mixta','Mixta']]),
+    seg('fifa11','¿Tu equipo hace el calentamiento FIFA 11+?',[['si','Sí'],['no','No'],['nose','No sé']]),
+    seg('nordic','¿Haces ejercicio nórdico de isquiotibiales?',[['no','No'],['aveces','A veces'],['si','Cada semana']])]},
+  marcas:{t:'Tests que ya te hayan hecho',note:'Si tu club te evaluó, anota lo último. Si no, déjalo en blanco.',f:[
+    row([txt('yoyo','Yo-Yo IR1 (nivel o metros)'),num('sprint10','Sprint 10 m','s',{step:0.01}),num('sprint30','Sprint 30 m','s',{step:0.01}),num('cmj','Salto vertical','cm')])]},
+  equipo:[txt('reloj','Reloj o GPS (si usas)'),...FC_FIELDS.slice(0,2)],
+  acceso:[['cancha','Cancha disponible fuera del equipo'],['gym','Gimnasio'],['pista','Pista de atletismo']]
+},
+raqueta:{
+  meta:[['salud','Jugar por salud'],['nivel','Subir mi nivel de juego'],['torneos','Competir en torneos'],['lesion','Volver de una lesión']],
+  hist:{t:'Tu juego',src:'Roetert y Kovacs, Complete Conditioning for Tennis (USTA)',f:[
+    row([seg('deporte_r','Deporte',[['tenis','Tenis'],['padel','Pádel'],['ambos','Ambos']]),seg('mano','Mano dominante',[['der','Derecha'],['izq','Izquierda']])]),
+    row([sel('nivel_r','Nivel',[['inicio','Iniciación'],['inter','Intermedio'],['avanz','Avanzado'],['compet','Competición']]),num('h_juego','Horas de juego por semana','h',{step:0.5}),num('partidos','Partidos por semana','',{min:0,max:10})]),
+    multi('molestias_r','¿Te molesta algo al jugar?',[['hombro','Hombro'],['codo','Codo'],['muneca','Muñeca'],['lumbar','Zona lumbar'],['rodilla','Rodilla'],['tobillo','Tobillo'],['nada','Nada']]),
+    seg('superficie','Superficie habitual',[['dura','Dura'],['arcilla','Arcilla'],['cesped','Césped sintético'],['cristal','Pista de pádel']])]},
+  marcas:null,
+  equipo:[txt('reloj','Reloj (si usas)'),...FC_FIELDS.slice(0,2)],
+  acceso:[['cancha','Cancha para entrenar físico'],['gym','Gimnasio'],['balon','Balón medicinal'],['dinamometro','Dinamómetro de mano']]
+},
+fuerza:{
+  meta:[['salud','Salud y composición corporal'],['hipertrofia','Ganar masa muscular'],['fuerza','Ganar fuerza (powerlifting)'],['deporte','Rendir mejor en mi deporte'],['volver','Volver después de una pausa o lesión']],
+  hist:{t:'Tu entrenamiento',src:'Nippard, The Muscle Ladder; Helms, The Muscle and Strength Pyramid',f:[
+    row([sel('anios','Años entrenando fuerza en serio',[['0','Estoy empezando'],['1','Menos de 1 año'],['2','2 a 5 años'],['3','5 a 10 años'],['4','Más de 10 años']]),num('dias_semana','Días por semana','días',{min:0,max:7})]),
+    seg('progreso','Hoy, ¿cada cuánto logras subir carga o repeticiones?',[['sesion','De una sesión a otra'],['semana','De una semana a otra'],['mes','De un mes a otro'],['estancado','Estoy estancado']],{src:'Helms (citando a Rippetoe)'}),
+    seg('rir','¿Sabes estimar cuántas repeticiones te quedan en reserva (RIR)?',[['si','Sí'],['masomenos','Más o menos'],['no','No']]),
+    seg('split','Cómo divides tu semana',[['full','Cuerpo completo'],['torso','Torso / pierna'],['ppl','Empuje / tirón / pierna'],['grupos','Un grupo por día'],['otro','Otro']])]},
+  marcas:{t:'Tus marcas actuales',note:'Peso × repeticiones de tu mejor serie reciente con buena técnica. Ej.: 80 × 5. Déjalo en blanco si no haces ese ejercicio.',src:'NSCA, tabla 17.7',f:[
+    row([txt('lf_sq','Sentadilla',{ph:'kg × reps'}),txt('lf_dl','Peso muerto',{ph:'kg × reps'}),txt('lf_bp','Press de banca',{ph:'kg × reps'})]),
+    row([txt('lf_ohp','Press militar',{ph:'kg × reps'}),txt('lf_pu','Dominadas',{ph:'reps (o kg extra × reps)'})])]},
+  equipo:[multi('equipo_f','Tienes acceso a',[['barra','Barra y discos'],['rack','Rack o jaula'],['mancuernas','Mancuernas'],['kb','Kettlebells'],['maquinas','Máquinas'],['bandas','Bandas'],['cajon','Cajón para saltos']]),
+    seg('vbt','¿Tienes medidor de velocidad de la barra o app de salto?',[['no','No'],['si','Sí']],{src:'Weakley 2021 (entrenamiento basado en velocidad)'}),...FC_FIELDS.slice(0,2)],
+  acceso:[['gym','Gimnasio completo'],['casa','Gimnasio en casa'],['parque','Parque o calistenia']]
+}};
+
+/* ---------- Autoevaluación ---------- */
+const T_DICHARRY=[
+  test('T1','Tobillo',['Siéntate en una silla con rodilla y tobillo doblados a 90°.','Sin mover el pie, desliza la cadera hacia adelante hasta que la rodilla pase la punta de los dedos.'],[{id:'t1',l:'¿El talón se quedó apoyado en el piso?',type:'lr',o:YN}],'Dicharry'),
+  test('T2','Dedo gordo',['En la misma posición, agarra el dedo gordo y levántalo recto.','La base del dedo tiene que seguir pegada al piso.'],[{id:'t2',l:'¿Sube unos 30° sin que se levante la planta?',type:'lr',o:YN}],'Dicharry'),
+  test('T3','Cadera',['Arrodíllate en una pierna dentro del marco de una puerta: muslo de atrás vertical y espinilla de adelante vertical.','Inclina la pelvis hacia atrás hasta pegar la zona lumbar al marco.'],[{id:'t3',l:'¿Sientes estiramiento al frente del muslo de la pierna de atrás?',type:'lr',o:YN,help:'«Derecha» = rodilla derecha en el piso.'}],'Dicharry'),
+  test('T4','Parte de atrás del muslo',['Acostado boca arriba, una pierna estirada en el piso.','Sube la otra pierna estirada sujetándola detrás del muslo.'],[{id:'t4',l:'¿Llegas a unos 70° (un poco menos que vertical) sin tirantez fuerte?',type:'lr',o:YN}],'Dicharry'),
+  test('T5','Control del dedo gordo',['De pie, empuja el dedo gordo contra el piso mientras levantas los otros cuatro.','El tobillo no se va ni hacia adentro ni hacia afuera.'],[{id:'t5',l:'¿Pudiste sin que el dedo gordo se doblara?',type:'lr',o:YN}],'Dicharry'),
+  test('T6','Postura con carga',['De pie y relajado, alguien detrás de ti presiona tus hombros hacia abajo con firmeza.'],[seg('t6','¿Se te arqueó la espalda o perdiste la postura?',[['si','Sí'],['no','No'],['solo','No tuve quién me ayudara']])],'Dicharry')];
+const T_HOMBRO=[
+  test('H1','Brazos por encima de la cabeza',['Boca abajo, brazos estirados al frente con los pulgares entrelazados.','Sin arquear la espalda ni levantar la cabeza, sube los brazos lo más que puedas.'],[seg('h1','¿Pudiste despegar los brazos del piso sin arquear la zona lumbar?',[['bien','Sí, bastante'],['poco','Muy poco'],['no','No']])],'Hekmati y Melin'),
+  test('H2','Rotación del hombro',['Boca arriba, brazo a 90° del cuerpo y codo doblado a 90°, con una toalla enrollada bajo el codo.','Rota la mano hacia el piso (hacia los pies), y luego hacia atrás (hacia la cabeza), sin despegar el hombro.'],[{id:'h2i',l:'Hacia los pies: ¿la palma llega cerca del piso?',type:'lr',o:YN},{id:'h2e',l:'Hacia la cabeza: ¿el dorso de la mano llega cerca del piso?',type:'lr',o:YN}],'Hekmati y Melin; USTA'),
+  test('H3','Rotación de la columna',['Sentado sobre los talones, palmas juntas frente al pecho.','Gira el tronco lo más que puedas a cada lado, dejando que la cabeza acompañe.'],[seg('h3','¿Giraste parecido a los dos lados?',[['si','Sí'],['no','No, un lado gira menos']])],'Hekmati y Melin')];
+const T_NADO=[
+  test('N1','Punta del pie',['Sentado o acostado, piernas estiradas y una toalla bajo las pantorrillas.','Estira las puntas de los pies hacia el piso lo más que puedas.'],[seg('n1','¿Los empeines quedan casi en línea con la espinilla?',[['si','Sí'],['no','No']])],'Hekmati y Melin'),
+  test('N2','Aguante de abdomen',['Sentado, rodillas dobladas, pies sujetos.','Espalda recta, dedos sobre las orejas, inclínate hacia atrás 45–60° y aguanta hasta que no puedas mantener la posición.'],[num('n2','Tiempo aguantado','s')],'Hekmati y Melin (McGill)'),
+  test('N3','Plancha lateral',['De lado, apoyado en el codo justo bajo el hombro, pies uno delante del otro.','Sube la cadera en línea con el cuerpo y aguanta.'],[row([num('n3d','Derecha','s'),num('n3i','Izquierda','s')])],'Hekmati y Melin')];
+const T_SALTO=test('S1','Salto horizontal',['Pies detrás de una línea. Toma impulso con los brazos y salta hacia adelante lo más lejos que puedas, cayendo con los dos pies.','Mide desde la línea hasta el talón más atrasado. Haz tres intentos.'],[num('salto_h','Mejor de 3 intentos','cm')],'NSCA; Thurgood');
+const T_FLEX=test('S2','Flexiones de brazos',['Cuerpo recto de cabeza a talones. Baja hasta que el pecho quede a un puño del piso.','Haz todas las que puedas sin parar y sin perder la postura.'],[num('flexiones','Repeticiones','')],'NSCA; USTA');
+const V_BASE=[
+  test('V1','Equilibrio en una pierna',['Cámara de frente, cuerpo completo, manos en la cintura.','30 s sobre la derecha y 30 s sobre la izquierda.','Repite con los ojos cerrados.'],[row([num('v1_ojosD','Ojos cerrados, derecha','s',{max:30}),num('v1_ojosI','Ojos cerrados, izquierda','s',{max:30})]),sent('v1')],'Dicharry'),
+  test('V3','Sentadilla a una pierna',['Cámara de frente, a la altura de la cadera. Que se vean pies, rodillas y hombros.','6 repeticiones lentas por pierna, bajando como para sentarte en una silla alta.'],[sent('v3')],'Dicharry'),
+  test('V4','Sentadilla con dos piernas',['De perfil a la cámara, manos en la cintura.','5 repeticiones.'],[sent('v4')],'Dicharry'),
+  test('V5','Puente',['Boca arriba, rodillas dobladas, brazos estirados hacia el techo con las manos juntas.','Sube la cadera y aguanta 30 s.','Levanta un pie unos centímetros y aguanta 30 s. Cambia de lado.'],[seg('v5_donde','¿Dónde sentiste el esfuerzo?',[['gluteo','Glúteo'],['isquio','Atrás del muslo'],['lumbar','Zona lumbar'],['nose','No sé']]),sent('v5')],'Dicharry')];
+const V_HOPS=test('V2','Saltos en una pierna',['De frente, salta en el sitio 30 s sobre cada pierna.'],[sent('v2')],'Dicharry');
+const V_OHS=test('V7','Sentadilla con palo sobre la cabeza',['Agarra un palo de escoba bien abierto y súbelo sobre la cabeza con los brazos rectos.','De perfil a la cámara: baja en 3 s, aguanta 1 s y sube rápido. 3 repeticiones.'],[sent('v7')],'Hekmati y Melin; NSCA');
+const V_SPORT={
+  running:test('V6','Corriendo',['10–15 s a ritmo cómodo pasando de lado frente a la cámara.','Luego 10–15 s acercándote y alejándote de ella.','En cámara lenta si tu teléfono lo permite.'],[sent('v6')]),
+  ciclismo:test('V6','En la bici',['Bici en el rodillo o apoyada en una pared, con la ropa y zapatillas de siempre.','30 s pedaleando de lado a la cámara y 30 s de frente.'],[sent('v6')]),
+  natacion:test('V6','Nadando',['Si alguien puede grabarte: 25 m de tu estilo principal, de lado y, si se puede, desde el frente.'],[sent('v6')]),
+  triatlon:test('V6','Corriendo',['10–15 s a ritmo cómodo pasando de lado frente a la cámara, y luego de frente.'],[sent('v6')]),
+  futbol:test('V6','Cambio de dirección',['Corre 5 m, frena y cambia de dirección hacia cada lado, de frente a la cámara.'],[sent('v6')]),
+  raqueta:test('V6','Golpes',['Si alguien puede grabarte: 3 saques o remates y 3 golpes de fondo, de lado.'],[sent('v6')]),
+  fuerza:test('V6','Tus básicos',['Una serie ligera de sentadilla y una de peso muerto (o bisagra de cadera), de perfil.'],[sent('v6')])};
+function autoTests(d){
+  const self=[...T_DICHARRY];
+  if(['natacion','triatlon','raqueta','fuerza'].includes(d))self.push(...T_HOMBRO);
+  if(d==='natacion')self.push(...T_NADO);
+  if(['futbol','raqueta','fuerza'].includes(d))self.push(T_SALTO);
+  if(['raqueta','fuerza'].includes(d))self.push(T_FLEX);
+  const vids=[...V_BASE];
+  if(['running','futbol','raqueta','triatlon'].includes(d))vids.splice(1,0,V_HOPS);
+  if(['natacion','fuerza','raqueta'].includes(d))vids.push(V_OHS);
+  vids.push(V_SPORT[d]);
+  return {self,vids};
+}
+
+/* ---------- Check-in semanal (Gabbett 2017; Bishop 2025) ---------- */
+const CK_VOL={
+  running:[row([num('vol_km','Kilómetros de la semana','km'),num('larga','Tirada más larga','km',{step:0.1})])],
+  ciclismo:[row([num('vol_h','Horas de la semana','h',{step:0.5}),num('vol_km','Kilómetros','km')])],
+  natacion:[row([num('vol_m','Metros de la semana','m')])],
+  triatlon:[row([num('h_swim','Natación','h',{step:0.5}),num('h_bike','Ciclismo','h',{step:0.5}),num('h_run','Carrera','h',{step:0.5})],'Horas de la semana')],
+  futbol:[row([num('partidos','Partidos','',{min:0}),num('minutos','Minutos jugados','min'),num('entrenos','Entrenamientos de equipo','')])],
+  raqueta:[row([num('h_juego','Horas de juego','h',{step:0.5}),num('partidos','Partidos','')])],
+  fuerza:[seg('cargas','¿Subiste carga o repeticiones esta semana?',[['si','Sí'],['igual','Me mantuve'],['no','Bajé'],['nose','No sé']])]};
+const EFFORT_HELP='1–2 muy fácil · 3–4 fácil · 5–6 algo duro · 7–8 duro · 9–10 muy duro';
+
+function makeSchema(d){
+  d=ING[d]?d:'running';
+  const I=ING[d], A=autoTests(d);
+  const objetivo={t:'Tu objetivo',f:[
+    sel('meta','¿Qué quieres lograr?',I.meta),
+    row([txt('carrera',d==='futbol'||d==='raqueta'?'Competencia o temporada objetivo':'Carrera o evento objetivo'),{id:'fecha_carrera',l:'Fecha',type:'date'}]),
+    sel('prioridad','¿Qué tan importante es?',[['A','A · lo más importante del año'],['B','B · importante'],['C','C · de preparación']])]};
+  const disp={t:S_DISPON.t,f:[...S_DISPON.f.slice(0,2),multi('acceso','Tienes acceso a',I.acceso),S_DISPON.f[2]]};
+  const ingreso=[S_DATOS,objetivo,I.hist];
+  if(I.marcas)ingreso.push(I.marcas);
+  ingreso.push(disp,{t:'Tu equipo',note:'Esto define qué tests puedes hacer. No hace falta comprar nada para empezar.',f:I.equipo},S_SALUD,S_LESION,S_RESP,S_ERGO,S_CONSENT);
+  return {
+    ingreso:{n:'01',tab:'Ingreso',hash:'ingreso',title:'Ingreso',time:'8–10 min',freq:'Una sola vez',
+      lead:'Quién eres, qué quieres lograr y con qué cuentas. Con esto defino tu perfil y el primer test que vamos a hacer.',sections:ingreso},
+    autoeval:{n:'02',tab:'Autoevaluación',hash:'autoevaluacion',title:'Autoevaluación de movimiento',time:'15–20 min',freq:'Al inicio y cada 10–12 semanas',
+      lead:'Pruebas que respondes tú, y videos que grabas para que yo los puntúe. Usa ropa que deje ver rodillas y tobillos, y apoya el teléfono en algo fijo.',
+      sections:[{t:'Tus datos',f:[txt('nombre','Nombre y apellido',{req:1})]},
+        {t:'Pruebas que respondes tú',note:'Haz cada una con los dos lados. Si alguna te da corrientazo, hormigueo o dolor, detente y anótalo en el comentario final.',f:A.self},
+        {t:'Videos para enviarme',note:'Grábalos, envíamelos por WhatsApp y marca cada uno como enviado.',f:[...A.vids,{id:'coment',l:'Comentario',type:'textarea',ph:'Algo que te llamó la atención o te molestó'}]}]},
+    checkin:{n:'03',tab:'Check-in',hash:'checkin',title:'Check-in semanal',time:'1 min',freq:'Cada domingo',
+      lead:'Cómo te fue esta semana. Responde aunque no hayas entrenado: eso también me sirve.',
+      sections:[{t:'Tu semana',f:[
+        row([txt('nombre','Nombre y apellido',{req:1}),{id:'semana',l:'Semana que termina el',type:'date',req:1}]),
+        row([num('ses_hechas','Sesiones hechas','',{min:0,max:21}),num('ses_plan','De las planificadas','',{min:0,max:21}),num('min_total','Minutos totales','min')]),
+        ...CK_VOL[d],
+        {id:'rpe',l:'¿Qué tan dura se sintió la semana?',type:'scale',min:1,max:10,help:EFFORT_HELP},
+        row([num('sueno','Sueño promedio','h',{step:0.5}),num('fc_rep','FC en reposo promedio','lpm')]),
+        {id:'sueno_cal',l:'Calidad del sueño',type:'scale',min:1,max:5,help:'1 = muy mala · 5 = excelente.'},
+        {id:'fatiga',l:'Cansancio general',type:'scale',min:1,max:5,help:'1 = fresco · 5 = agotado.'},
+        {id:'agujetas',l:'Dolor muscular por el entrenamiento',type:'scale',min:1,max:5,help:'1 = nada · 5 = mucho.'},
+        {id:'estres',l:'Estrés fuera del entrenamiento',type:'scale',min:1,max:5,help:'1 = tranquilo · 5 = muy alto.'},
+        {id:'dolor',l:'Dolor o molestia de lesión más fuerte de la semana',type:'scale',min:0,max:10,help:'0 = nada · 10 = no pude entrenar. Hasta 3 suele ser tolerable si no empeora al día siguiente.'},
+        txt('dolor_zona','¿Dónde?',{show:s=>+s.dolor>0}),
+        num('bolt','BOLT del domingo al despertar','s',{help:'Opcional.'}),
+        {id:'coment',l:'Comentario',type:'textarea'}]}]}
+  };
+}
+
+const MODS=['ingreso','autoeval','checkin'];
+let DISC=(()=>{try{const q=new URLSearchParams(location.search).get('d');if(q&&ING[q])return q;const r=JSON.parse(localStorage.getItem('rq-ficha-v1')||'null');if(r&&r.disc&&ING[r.disc])return r.disc}catch(e){}return 'running'})();
+let SCHEMA=makeSchema(DISC);
+
 
 /* ---------- utilidades ---------- */
 const $=(s,r=document)=>r.querySelector(s);
@@ -282,7 +445,7 @@ function assessLines(a){
     a.imt?`Fase IMT sugerida: ${a.imt}`:'',''].filter((x,i,arr)=>x!==''||i===arr.length-1);
 }
 function isrHtml(m){
-  if(!ASSESS)return `<div class="isr none"><p><b>¿Ya hiciste la evaluación respiratoria gratuita?</b> Si la haces en este mismo teléfono o computadora, tu resultado se añade solo a esta ficha.</p><a class="link" href="/Assessment-Respiratorio/" target="_blank" rel="noopener">Hacer la evaluación (3 min) →</a></div>`;
+  if(!ASSESS)return `<div class="isr none"><p><b>¿Ya hiciste la evaluación respiratoria gratuita?</b> Si la haces en este mismo teléfono o computadora, tu resultado se añade solo a esta ficha.</p><a class="link" href="https://ralejql-ai.github.io/Assessment-Respiratorio/" target="_blank" rel="noopener">Hacer la evaluación (3 min) →</a></div>`;
   const s=ASSESS.scores;
   return `<div class="isr"><div class="isr-top"><div><span class="eyebrow">Tu evaluación respiratoria · ${esc(fmtIso(ASSESS.fecha))}</span>
     <div class="isr-n"><b>${s.total}</b><span>/45</span> <em>${esc(ASSESS.nivel||'')}</em></div></div>
@@ -292,13 +455,14 @@ function isrHtml(m){
 
 /* walk all leaf fields of a module */
 function leaves(m){const out=[];const walk=a=>a.forEach(f=>{if(f.type==='row'||f.type==='test')walk(f.f);else out.push(f)});SCHEMA[m].sections.forEach(s=>walk(s.f));return out}
-const FIELD={};MODS.forEach(m=>{FIELD[m]={};leaves(m).forEach(f=>FIELD[m][f.id]=f)});
+let FIELD={};function buildField(){FIELD={};MODS.forEach(m=>{FIELD[m]={};leaves(m).forEach(f=>FIELD[m][f.id]=f)})}buildField();
 
 /* ---------- estado local ---------- */
 let cur='ingreso';
 const LS='rq-ficha-v1';
 let S={ingreso:{},autoeval:{},checkin:{}};
 try{const r=JSON.parse(localStorage.getItem(LS)||'null');if(r)MODS.forEach(m=>S[m]=Object.assign({},r[m]||{}))}catch(e){}
+S.disc=DISC;
 let saveT;function persist(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}},300)}
 if(!S.autoeval.nombre&&S.ingreso.nombre)S.autoeval.nombre=S.ingreso.nombre;
 if(!S.checkin.nombre&&S.ingreso.nombre)S.checkin.nombre=S.ingreso.nombre;
@@ -307,7 +471,7 @@ if(!S.checkin.nombre&&S.ingreso.nombre)S.checkin.nombre=S.ingreso.nombre;
 function optsHtml(m,name,o,cls=''){return `<div class="opts ${cls}">${o.map(([v,l])=>`<label class="opt"><input type="radio" name="${m}-${name}" value="${esc(v)}" data-m="${m}" data-k="${name}"><span>${esc(l)}</span></label>`).join('')}</div>`}
 function fieldHtml(m,f){
   if(f.type==='row')return `${f.l?`<div class="rowlab">${esc(f.l)}</div>`:''}<div class="row">${f.f.map(x=>fieldHtml(m,x)).join('')}</div>`;
-  if(f.type==='test')return `<div class="test"><div class="th"><span class="code">${f.code}</span><h4>${esc(f.t)}</h4></div><ol>${f.how.map(h=>`<li>${esc(h)}</li>`).join('')}</ol>${f.f.map(x=>fieldHtml(m,x)).join('')}</div>`;
+  if(f.type==='test')return `<div class="test"><div class="th"><span class="code">${f.code}</span><h4>${esc(f.t)}</h4></div><ol>${f.how.map(h=>`<li>${esc(h)}</li>`).join('')}</ol>${f.f.map(x=>fieldHtml(m,x)).join('')}${f.src?`<p class="src">Fuente: ${esc(f.src)}</p>`:''}</div>`;
   const id=`${m}-${f.id}`, help=f.help?`<p class="help">${esc(f.help)}</p>`:'', cond=f.show?' data-cond="1"':'';
   const lab=esc(f.l)+(f.req?' <span aria-hidden="true" style="color:var(--accent)">*</span>':'');
   switch(f.type){
@@ -329,7 +493,7 @@ function moduleHtml(m){
   return `<section class="mod" id="mod-${m}" role="tabpanel" hidden>
     <div class="mhead"><span class="eyebrow">Parte ${M.n} de 03</span><h2>${esc(M.title)}</h2><p>${esc(M.lead)}</p>
       <div class="meta"><span class="chip acc">${esc(M.time)}</span><span class="chip">${esc(M.freq)}</span></div></div>
-    ${M.sections.map(s=>`<section class="sec"><header><h3>${esc(s.t)}</h3>${s.note?`<p class="note">${esc(s.note)}</p>`:''}</header>${s.f.map(f=>fieldHtml(m,f)).join('')}</section>`).join('')}
+    ${M.sections.map(s=>`<section class="sec"><header><h3>${esc(s.t)}</h3>${s.note?`<p class="note">${esc(s.note)}</p>`:''}${s.src?`<p class="src">Fuente: ${esc(s.src)}</p>`:''}</header>${s.f.map(f=>fieldHtml(m,f)).join('')}</section>`).join('')}
     <div class="review" id="rev-${m}">
       <h3>Enviar a Rafael</h3>
       <p class="howto">Toca «Preparar respuestas» y luego «Enviar por WhatsApp». No borres el código del final: es lo que me permite cargar tu ficha. Si WhatsApp no abre, copia las respuestas y envíalas al <span class="num">+58 414 223 8924</span>.</p>
@@ -363,9 +527,9 @@ function valStr(f,d){
   }
 }
 function visible(f,d){return !f.show||f.show(d)}
-function summaryLines(m,d){
+function summaryLines(m,d,sch){
   const out=[];
-  SCHEMA[m].sections.forEach(s=>{
+  (sch||SCHEMA)[m].sections.forEach(s=>{
     const lines=[];
     const walk=(arr,prefix)=>arr.forEach(f=>{
       if(f.type==='row')return walk(f.f,f.l?f.l+' · ':prefix);
@@ -392,9 +556,10 @@ async function packCode(obj){
 async function buildText(m){
   const d=S[m], M=SCHEMA[m];
   const useA=m==='ingreso'&&ASSESS&&d.isr_ok!==false;
-  const payload={v:1,t:m,s:'running',f:new Date().toISOString(),d};
+  const keep={};leaves(m).forEach(f=>{if(f.type==='lr'){['_D','_I'].forEach(x=>{if(d[f.id+x]!==undefined)keep[f.id+x]=d[f.id+x]})}else if(d[f.id]!==undefined&&d[f.id]!==''&&visible(f,d))keep[f.id]=d[f.id]});
+  const payload={v:2,t:m,s:DISC,f:new Date().toISOString(),d:keep};
   if(useA)payload.a=ASSESS;
-  return [`FICHA DE CORREDOR · ${M.title.toUpperCase()}`,`Para Rafael Quintana · Terapia Respiratoria`,'',...summaryLines(m,d),...(useA?assessLines(ASSESS):[]),'(Código para Rafael, no lo borres)',await packCode(payload)].join('\n');
+  return [`FICHA DEPORTIVA · ${DISC_LABEL[DISC].toUpperCase()} · ${M.title.toUpperCase()}`,`Para Rafael Quintana · Terapia Respiratoria`,'',...summaryLines(m,keep),...(useA?assessLines(ASSESS):[]),'(Código para Rafael, no lo borres)',await packCode(payload)].join('\n');
 }
 function missing(m){return leaves(m).filter(f=>f.req&&visible(f,S[m])&&!S[m][f.id]).map(f=>f.l)}
 function progress(m){const fs=leaves(m).filter(f=>visible(f,S[m])&&f.type!=='isr');let n=0,t=0;fs.forEach(f=>{if(f.type==='lr'){t+=2;if(S[m][f.id+'_D'])n++;if(S[m][f.id+'_I'])n++}else{t++;const v=S[m][f.id];if(Array.isArray(v)?v.length:(v!==undefined&&v!==''&&v!==false))n++}});return t?Math.round(n/t*100):0}
@@ -419,6 +584,19 @@ function fill(m){
 function conds(m){$$('[data-cond]',$('#mod-'+m)).forEach(el=>{const f=FIELD[m][el.dataset.f];el.hidden=!visible(f,S[m])})}
 function updProgress(){MODS.forEach(m=>{const p=progress(m);const el=$(`[data-pc="${m}"]`);if(el)el.textContent=p?p+'%':''});const cur=current();$('#progbar').style.width=(SCHEMA[cur]?progress(cur):0)+'%'}
 MODS.forEach(fill); updProgress();
+
+/* ---------- selector de disciplina ---------- */
+const discEl=$('#disc');
+function discHtml(){return DISCS.map(([v,l])=>`<label class="dopt"><input type="radio" name="disc" value="${v}" ${v===DISC?'checked':''}><span>${esc(l)}</span></label>`).join('')}
+function setHero(){const e=$('#hero-disc');if(e)e.textContent=DISC_LABEL[DISC].toLowerCase()}
+discEl.innerHTML=discHtml(); setHero();
+discEl.addEventListener('change',e=>{
+  const v=e.target.value; if(!ING[v]||v===DISC)return;
+  DISC=v; S.disc=v; SCHEMA=makeSchema(v); buildField();
+  main.innerHTML=MODS.map(moduleHtml).join(''); tabs.innerHTML=tabHtml();
+  MODS.forEach(fill); setHero(); persist(); show(cur,true);
+  try{const u=new URL(location.href);u.searchParams.set('d',v);history.replaceState(null,'',u)}catch(err){}
+});
 
 main.addEventListener('input',onChange); main.addEventListener('change',onChange);
 function onChange(e){
