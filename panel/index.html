@@ -1,0 +1,1067 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Panel · Terapia Respiratoria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap">
+<style>
+/* Layout: una columna estrecha tipo ficha clínica; misma identidad que la landing (Cormorant Garamond + DM Sans, teal, cobre y crema). */
+:root{
+  --bg:#F8F3EA; --surface:#FFFDF9; --sunk:#EFE7D8; --ink:#1C2628; --muted:#5F6B6C; --line:rgba(13,59,62,.16);
+  --accent:#14545A; --accent-ink:#F8F3EA; --accent-soft:#DCE8E6;
+  --warn:#8A4B12; --warn-soft:#F6E3CF; --ok:#2E6B4A; --ok-soft:#DDEDE2; --violet:#AC5F38; --violet-soft:#F3E2D6;
+  --f-display:"Cormorant Garamond",Georgia,serif;
+  --f-body:"DM Sans",-apple-system,sans-serif;
+  --f-mono:"DM Sans",-apple-system,sans-serif;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1B1C; --surface:#142526; --sunk:#10201F; --ink:#EDE6DA; --muted:#A3B0AE; --line:#2A3D3E;
+  --accent:#6FB3AE; --accent-ink:#0B1718; --accent-soft:#1C3433;
+  --warn:#E8A868; --warn-soft:#3A2817; --ok:#7CC79B; --ok-soft:#173022; --violet:#D89066; --violet-soft:#3A2A20; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1B1C; --surface:#142526; --sunk:#10201F; --ink:#EDE6DA; --muted:#A3B0AE; --line:#2A3D3E;
+  --accent:#6FB3AE; --accent-ink:#0B1718; --accent-soft:#1C3433;
+  --warn:#E8A868; --warn-soft:#3A2817; --ok:#7CC79B; --ok-soft:#173022; --violet:#D89066; --violet-soft:#3A2A20; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font:300 16px/1.65 var(--f-body);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:740px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font:500 11px/1.3 var(--f-body);letter-spacing:.28em;text-transform:uppercase;color:var(--violet)}
+
+/* Cabecera */
+.brand{padding-block:28px 18px;display:flex;flex-direction:column;gap:10px}
+.brand h1{font-size:clamp(36px,7vw,52px);font-weight:500}
+.brand p{margin:0;color:var(--muted);max-width:60ch}
+.sig{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+.sig b{font-family:var(--f-display);font-weight:600;font-size:15px}
+
+/* Barra de módulos */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding-block:8px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;display:flex;align-items:baseline;gap:8px;border:1px solid var(--line);background:none;color:var(--muted);font:500 14px/1 var(--f-body);padding:10px 16px;border-radius:100px;cursor:pointer}
+.tab .n{font:500 12px var(--f-mono)}
+.tab .pc{font:500 11px var(--f-mono);color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--accent-soft);color:var(--ink);border-color:color-mix(in srgb,var(--accent) 35%,transparent)}
+.tab[aria-selected="true"] .n{color:var(--accent)}
+.tab.owner{color:var(--violet)}
+.tab.owner[aria-selected="true"]{background:var(--violet-soft);border-color:color-mix(in srgb,var(--violet) 35%,transparent)}
+.prog{height:3px;background:var(--sunk)}
+.prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+
+/* Módulo */
+.mod{padding-block:26px 64px;display:flex;flex-direction:column;gap:28px}
+.mhead{display:flex;flex-direction:column;gap:8px}
+.mhead h2{font-size:34px;font-weight:500}
+.mhead p{margin:0;max-width:62ch}
+.meta{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;font:500 12px/1 var(--f-mono);padding:6px 9px;border-radius:999px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.chip.acc{background:var(--accent-soft);color:var(--accent)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}
+.chip.vio{background:var(--violet-soft);color:var(--violet)}
+
+section.sec{display:flex;flex-direction:column;gap:18px;padding-top:22px;border-top:1px solid var(--line)}
+.sec>header{display:flex;flex-direction:column;gap:4px}
+.sec h3{font-size:24px;font-weight:500}
+.sec .note{margin:0;color:var(--muted);font-size:14.5px;max-width:62ch}
+
+.fld{display:flex;flex-direction:column;gap:6px;min-width:0;border:0;margin:0;padding:0}
+.fld>label,.fld>legend{font-weight:500;font-size:15px;padding:0}
+.help{font-size:13.5px;color:var(--muted);margin:0}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;align-items:end}
+.discs{border:0;padding:0;margin:4px 0 0;display:flex;flex-direction:column;gap:8px}
+.discs legend{margin-bottom:8px}
+.dopts{display:flex;flex-wrap:wrap;gap:6px}
+.dopt{position:relative;cursor:pointer}
+.dopt input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.dopt span{display:inline-block;padding:9px 13px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font:500 14px var(--f-body)}
+.dopt input:checked+span{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.dopt input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.alerta{padding:14px 16px;border-radius:var(--r);background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn);font-weight:500}
+.src{font-size:12.5px;color:var(--muted);font-style:italic;margin:0}
+.isr{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:var(--r);background:var(--accent-soft);border:1px solid var(--line)}
+.isr.none p{margin:0}
+.isr .link{color:var(--accent);font-weight:600;text-decoration:none}
+.isr-top{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:flex-end;justify-content:space-between}
+.isr-n b{font:700 40px/1 var(--f-display)}
+.isr-p{display:flex;gap:14px;font-size:13px;color:var(--muted)}
+.btn.wa{background:var(--ok);border-color:var(--ok);color:var(--surface);text-decoration:none}
+.rowlab{font-weight:500;font-size:15px;margin-bottom:-8px}
+input[type=text],input[type=number],input[type=date],input[type=email],select,textarea{
+  width:100%;font:16px var(--f-body);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:11px 12px;min-height:46px}
+textarea{min-height:90px;resize:vertical}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.unit{position:relative}
+.unit input{padding-right:52px}
+.unit span{position:absolute;right:12px;top:50%;transform:translateY(-50%);font:500 13px var(--f-mono);color:var(--muted);pointer-events:none}
+
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{position:relative;cursor:pointer}
+.opt input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.opt span{display:inline-block;font-weight:400;padding:10px 15px;border:1px solid var(--line);border-radius:100px;background:var(--surface);font-size:15px;line-height:1.2}
+.opt input:checked+span{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.opt input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.scale .opt span{min-width:42px;text-align:center;font-family:var(--f-mono)}
+.lr{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center}
+.lr .side{font:500 12px var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.chk{display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:15px}
+.chk input{width:20px;height:20px;margin-top:2px;accent-color:var(--accent);flex:0 0 auto}
+
+/* Test / video */
+.test{display:flex;flex-direction:column;gap:12px;padding:16px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.test .th{display:flex;gap:12px;align-items:baseline}
+.test .code{font:500 13px var(--f-mono);color:var(--accent);flex:0 0 auto}
+.test h4{margin:0;font:600 17px/1.25 var(--f-display)}
+.test ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:15px}
+.test .src{font-size:12.5px;color:var(--muted)}
+
+/* Revisión */
+.review{display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:var(--r);background:var(--sunk);border:1px solid var(--line)}
+.review h3{font-size:20px}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:500 14px/1 var(--f-body);letter-spacing:.04em;padding:15px 26px;border-radius:100px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.vio{background:var(--violet);border-color:var(--violet);color:var(--surface)}
+.btn.ghost{background:none}
+.btn.danger{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent);background:none}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn:disabled{opacity:.5;cursor:default}
+.missing{margin:0;color:var(--warn);font-size:14.5px}
+.out{width:100%;min-height:220px;font:13px/1.5 ui-monospace,Menlo,monospace;background:var(--surface);white-space:pre-wrap}
+.status{font-size:14px;color:var(--ok);min-height:1.4em;margin:0}
+.howto{margin:0;font-size:14.5px;color:var(--muted)}
+
+/* Panel */
+.panel-intro{display:flex;flex-direction:column;gap:8px}
+.import{display:flex;flex-direction:column;gap:10px;padding:16px;border:1px dashed color-mix(in srgb,var(--violet) 50%,var(--line));border-radius:var(--r)}
+.runners{display:flex;flex-direction:column;gap:16px}
+.runner{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);display:flex;flex-direction:column}
+.runner>.top{padding:16px;display:flex;flex-direction:column;gap:10px}
+.runner .name{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between}
+.runner .name h3{font-size:22px}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.kv div{background:var(--surface);padding:10px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kv dt{font:500 11px var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.kv dd{margin:0;font:500 15px var(--f-mono);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.runner .body{padding:4px 16px 16px;display:flex;flex-direction:column;gap:6px}
+details{border-bottom:1px solid var(--line)}
+details:last-child{border-bottom:0}
+summary{cursor:pointer;padding:12px 0;font-weight:600;display:flex;gap:10px;align-items:baseline;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"+";font:500 14px var(--f-mono);color:var(--muted);width:12px}
+details[open]>summary::before{content:"–"}
+summary .d{font:400 13px var(--f-mono);color:var(--muted)}
+.lines{margin:0 0 14px;font:13px/1.6 var(--f-mono);white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink)}
+.eval{display:flex;flex-direction:column;gap:12px;padding-bottom:14px}
+.tbl{overflow-x:auto}
+.tbl table{border-collapse:collapse;font:13px var(--f-mono);font-variant-numeric:tabular-nums;width:100%;min-width:520px}
+.tbl th,.tbl td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl th{font-weight:500;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+.empty{padding:24px;border-radius:var(--r);background:var(--sunk);color:var(--muted);font-size:15px}
+.confirm{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px;margin-bottom:14px}
+footer.foot{padding-block:24px 40px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.site{background:var(--surface);border-bottom:1px solid var(--line)}
+.site .wrap{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-block:14px}
+.logo{font:500 22px var(--f-display);color:var(--ink);text-decoration:none}.logo span{font-style:italic;color:var(--violet)}
+.site small{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+main.wrap{display:flex;flex-direction:column;gap:18px;padding-block:28px 64px}
+.login{max-width:420px;margin:40px auto;display:flex;flex-direction:column;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:24px}
+.login input,#busca{font:400 16px var(--f-body);padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);width:100%}
+.tools{display:flex;flex-direction:column;gap:10px}
+.filters{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.filters::-webkit-scrollbar{display:none}
+.row2{display:flex;gap:8px}.row2 .btn{flex:0 0 auto;padding:12px 18px}
+.btn.mini{padding:7px 12px;font-size:12.5px}
+.contact{font-family:var(--f-mono);color:var(--ink)}
+.status{font-size:13.5px;color:var(--accent);margin:0;min-height:1.3em}
+details.import{padding:16px}details.import summary{cursor:pointer;font-weight:500}
+details.import[open]{display:flex;flex-direction:column;gap:10px}
+details summary .chip{margin-left:6px}
+details>summary{flex-wrap:wrap;row-gap:6px}
+
+</style>
+</head>
+<body>
+<div class="site"><div class="wrap"><a class="logo" href="/">Terapia <span>Respiratoria</span></a><small id="who"></small></div></div>
+<main class="wrap">
+  <form class="login" id="login" hidden autocomplete="on">
+    <span class="eyebrow">Acceso privado</span>
+    <h2 style="font-size:32px">Panel de Rafael</h2>
+    <label class="fld"><span style="font-weight:500">Correo</span><input id="lemail" type="email" autocomplete="username" required></label>
+    <label class="fld"><span style="font-weight:500">Contraseña</span><input id="lpass" type="password" autocomplete="current-password" required></label>
+    <button class="btn pri" id="lbtn" type="submit">Entrar</button>
+    <p class="status" id="loginmsg" role="status"></p>
+  </form>
+  <div id="app" hidden>
+    <div class="mhead" style="margin-bottom:16px"><span class="eyebrow">Solo visible para ti</span><h2>Panel de Rafael</h2>
+      <p>Fichas y assessments de tu landing, guardados mientras la persona avanza. Los que no terminaron aparecen como «sin terminar», con su contacto si lo dejó.</p>
+      <div class="actions"><button class="btn ghost mini" type="button" id="logout">Cerrar sesión</button></div></div>
+    <section id="mod-panel"></section>
+  </div>
+</main>
+<script>
+(()=>{
+/* ===== Esquema de la ficha deportiva (compartido entre la landing y el Panel de Rafael) =====
+   Núcleo común + módulo por disciplina. Cada test indica su fuente en `src`. */
+const YN=[['si','Sí'],['no','No']];
+const PQ=['pq1','pq2','pq3','pq4','pq5','pq6','pq7'];
+const DISCS=[
+  ['running','Running'],['ciclismo','Ciclismo'],['natacion','Natación'],['triatlon','Triatlón'],
+  ['futbol','Deportes de equipo'],['raqueta','Tenis / Pádel'],['fuerza','Fuerza / Gimnasio']
+];
+const DISC_LABEL=Object.fromEntries(DISCS);
+const num=(id,l,u,x={})=>Object.assign({id,l,type:'number',u},x);
+const seg=(id,l,o,x={})=>Object.assign({id,l,type:'seg',o},x);
+const sel=(id,l,o,x={})=>Object.assign({id,l,type:'select',o},x);
+const multi=(id,l,o,x={})=>Object.assign({id,l,type:'multi',o},x);
+const txt=(id,l,x={})=>Object.assign({id,l,type:'text'},x);
+const row=(f,l)=>({type:'row',f,l});
+const test=(code,t,how,f,src)=>({type:'test',code,t,how,f,src});
+const sent=id=>({id,l:'Video grabado y enviado',type:'check'});
+const DIST=[['3','3 km'],['5','5 km'],['10','10 km'],['15','15 km'],['21.0975','Medio maratón'],['42.195','Maratón']];
+const PLATF=[['garmin','Garmin Connect'],['strava','Strava'],['tp','TrainingPeaks'],['coros','Coros'],['polar','Polar'],['apple','Apple Salud'],['zwift','Zwift / rodillo'],['otra','Otra']];
+const marks=(p,o)=>[1,2,3].map(i=>row([sel(`${p}${i}_d`,'Distancia',o),{id:`${p}${i}_t`,l:'Tiempo',type:'time'},{id:`${p}${i}_f`,l:'Fecha',type:'date'}],`Marca ${i}`));
+const weeks=(p,l,u)=>row([num(p+'1','Hace 4 sem.',u),num(p+'2','Hace 3',u),num(p+'3','Hace 2',u),num(p+'4','La última',u)],l);
+
+/* ---------- Bloques del núcleo ---------- */
+const S_DATOS={t:'Tus datos',f:[
+  txt('nombre','Nombre y apellido',{req:1}),
+  row([num('edad','Edad','años',{min:12,max:99}),sel('sexo','Sexo',[['f','Femenino'],['m','Masculino']])]),
+  row([num('peso','Peso','kg',{step:0.1}),num('talla','Talla','cm')]),
+  row([txt('contacto','WhatsApp o correo'),txt('ciudad','Ciudad')])]};
+const S_DISPON={t:'Disponibilidad',f:[
+  multi('dias','Días en que puedes entrenar',[['lu','Lun'],['ma','Mar'],['mi','Mié'],['ju','Jue'],['vi','Vie'],['sa','Sáb'],['do','Dom']]),
+  row([num('min_sem','Minutos por sesión entre semana','min'),num('min_fds','Minutos el fin de semana','min')]),
+  seg('fuerza_hab','¿Haces trabajo de fuerza?',[['no','No'],['1','1 vez por semana'],['2','2 o más']])]};
+const S_SALUD={t:'Salud',note:'Preguntas generales del cuestionario PAR-Q+. Un «sí» no te descarta: me dice qué revisar antes de pedirte esfuerzos máximos.',f:[
+  seg('pq1','¿Algún médico te ha dicho que tienes una afección cardíaca o presión arterial alta?',YN),
+  seg('pq2','¿Sientes dolor en el pecho en reposo, en tu día a día o al hacer actividad física?',YN),
+  seg('pq3','¿Has perdido el equilibrio por mareo, o el conocimiento, en los últimos 12 meses?',YN,{help:'Responde «no» si el mareo fue por respirar muy rápido durante un esfuerzo intenso.'}),
+  seg('pq4','¿Te han diagnosticado otra enfermedad crónica, distinta a la cardíaca o la presión alta?',YN),
+  seg('pq5','¿Tomas medicamentos recetados para una enfermedad crónica?',YN),
+  seg('pq6','¿Tienes, o tuviste en los últimos 12 meses, un problema de huesos, articulaciones, músculos, ligamentos o tendones que podría empeorar si aumentas tu actividad física?',YN,{help:'Responde «no» si fue en el pasado y hoy no te limita.'}),
+  seg('pq7','¿Algún médico te ha dicho que solo debes hacer actividad física con supervisión médica?',YN),
+  {id:'pq_detalle',l:'Cuéntame a cuál respondiste «sí» y qué te dijeron',type:'textarea',show:s=>PQ.some(k=>s[k]==='si')},
+  multi('alarmas','¿Tienes hoy alguna de estas señales?',[['noche','Dolor en reposo o de noche que no cede'],['trauma','Golpe o caída fuerte reciente'],['peso','Pérdida de peso sin explicación'],['fiebre','Fiebre, escalofríos o sudores nocturnos'],['neuro','Debilidad u hormigueo que avanza en piernas o brazos'],['vejiga','Cambios al orinar'],['nada','Ninguna']],{src:'Walters y Cordoza, Rehab Science (señales de alarma)'})]};
+const lesionRows=[1,2].map(i=>row([txt(`les${i}`,'Lesión o molestia',{ph:'Ej.: isquiotibial derecho'}),num(`les${i}_sem`,'Semanas sin entrenar','sem'),num(`les${i}_hoy`,'Dolor hoy (0–10)','',{min:0,max:10})],`Lesión ${i}`));
+const S_LESION={t:'Lesiones de los últimos 12 meses',note:'Déjalo en blanco si no tuviste ninguna.',f:lesionRows};
+const S_RESP={t:'Respiración',note:'Si no sabes alguna respuesta, déjala en blanco.',f:[
+  {id:'isr',type:'isr'},
+  multi('resp_sint','Al entrenar te pasa que…',[['disnea','Me falta el aire más de lo que debería'],['tos','Toso o me silba el pecho'],['garganta','Siento la garganta cerrada, «como respirar por un pitillo»'],['flato','Me da flato (dolor en el costado)'],['nariz','No puedo respirar por la nariz ni a ritmo suave'],['nada','Nada de esto']]),
+  seg('resp_inicio','Si te falta el aire, ¿cuándo empieza?',[['rapido','En los primeros 1–5 min de esfuerzo intenso'],['tarde','Después de 15–30 min, o al terminar'],['nose','No sé']],{show:s=>Array.isArray(s.resp_sint)&&s.resp_sint.some(x=>['disnea','tos','garganta'].includes(x)),src:'Dickinson y Hull (EILO vs. broncoespasmo)'}),
+  seg('resp_ruido','¿Hace ruido al respirar?',[['inhalar','Al tomar aire'],['exhalar','Al soltar el aire'],['no','No']],{show:s=>Array.isArray(s.resp_sint)&&s.resp_sint.some(x=>['disnea','tos','garganta'].includes(x))}),
+  seg('resp_dura','Al parar, ¿cuánto tarda en pasar?',[['corto','Menos de 5 min'],['largo','30 min o más']],{show:s=>Array.isArray(s.resp_sint)&&s.resp_sint.some(x=>['disnea','tos','garganta'].includes(x))}),
+  seg('inhalador','¿Usas inhalador para el asma o al entrenar?',[['no','No'],['si_ayuda','Sí, y me ayuda'],['si_no','Sí, pero no me ayuda']]),
+  multi('resp_reposo','En reposo o al dormir',[['boca','Respiro por la boca'],['ronca','Ronco'],['congest','Tengo la nariz congestionada a menudo'],['nada','Nada de esto']]),
+  num('bolt','BOLT al despertar','s',{help:'Exhala normal, tápate la nariz y cuenta los segundos hasta las primeras ganas claras de respirar. No aguantes de más.'})]};
+const S_ERGO={t:'Ergoespirometría',f:[
+  seg('ergo','¿Te interesaría hacerte una ergoespirometría?',[['si','Sí'],['no','No por ahora'],['tengo','Ya tengo una']],{help:'Prueba de esfuerzo con análisis de gases, por referencia a laboratorio. Da tus umbrales reales.'}),
+  txt('ergo_nota','Si ya tienes una, ¿cuándo y dónde fue?',{show:s=>s.ergo==='tengo',help:'Envíame el informe por WhatsApp.'})]};
+const S_CONSENT={t:'Consentimiento',f:[{id:'consent',l:'Autorizo a Rafael Quintana (Terapia Respiratoria) a guardar y usar estos datos solo para evaluarme y programar mi entrenamiento.',type:'check',req:1}]};
+const FC_FIELDS=[
+  seg('sensor','¿Cómo mides la frecuencia cardíaca?',[['muneca','Sensor del reloj'],['banda','Banda de pecho'],['ninguno','No la mido']]),
+  row([num('fc_reposo','FC en reposo','lpm',{help:'Promedio de 7 días al despertar.'}),num('fc_max','FC más alta que has visto','lpm')]),
+  sel('fc_max_origen','¿De dónde sale esa FC máxima?',[['test','Prueba de esfuerzo'],['carrera','Final de una carrera o test'],['formula','Una fórmula o el reloj'],['nose','No sé']])];
+const COMPRAR=seg('comprar','¿Comprarías equipo si te lo recomiendo?',[['si','Sí'],['quiza','Tal vez'],['no','No']]);
+
+/* ---------- Módulos por disciplina (ingreso) ---------- */
+const ING={
+running:{
+  meta:[['salud','Correr por salud, sin carrera definida'],['terminar','Terminar un 5K o 10K sin sufrir'],['marca','Bajar mi marca en una distancia'],['21k','Preparar un medio maratón'],['42k','Preparar un maratón'],['trail','Trail o ultra']],
+  hist:{t:'Cómo vienes corriendo',note:'Toma los datos de tu reloj o app, no de memoria.',f:[
+    row([sel('anios','¿Hace cuánto corres?',[['0','Estoy empezando'],['1','Menos de 1 año'],['2','1 a 3 años'],['3','Más de 3 años']]),num('dias_semana','Días que corres por semana','días',{min:0,max:7})]),
+    weeks('km','Kilómetros por semana, últimas 4 semanas','km'),
+    row([num('larga_km','Tirada más larga del último mes','km',{step:0.1}),{id:'larga_t',l:'En cuánto tiempo',type:'time'}])]},
+  marcas:{t:'Marcas recientes',note:'Hasta tres carreras o contrarrelojes de los últimos 3 meses, de distancias distintas si puedes. Con dos ya puedo ver cómo se comporta tu resistencia.',f:marks('m',DIST)},
+  equipo:[txt('reloj','Reloj (marca y modelo)',{ph:'Ej.: Garmin Forerunner 255'}),...FC_FIELDS,
+    seg('potencia','¿Tienes potenciómetro de carrera?',[['no','No'],['stryd','Stryd'],['otro','Otro']]),
+    multi('plataforma','¿Dónde quedan registrados tus entrenamientos?',PLATF),seg('acceso_datos','¿Me darías acceso de lectura a esa plataforma?',YN),COMPRAR,
+    num('cadencia','Cadencia en un rodaje cómodo','ppm',{help:'Pasos por minuto. Aparece en tu reloj.'})],
+  acceso:[['pista','Pista de atletismo'],['cinta','Caminadora'],['gym','Gimnasio'],['cuestas','Cuestas cerca'],['plano','Circuito plano y fijo']]
+},
+ciclismo:{
+  meta:[['salud','Rodar por salud o cicloturismo'],['fondo','Gran fondo o marcha'],['ruta','Competir en ruta'],['crono','Contrarreloj'],['mtb','MTB o gravel'],['indoor','Entreno sobre todo en rodillo']],
+  hist:{t:'Cómo vienes rodando',note:'Toma los datos de tu ciclocomputador o app.',f:[
+    row([sel('anios','¿Hace cuánto montas?',[['0','Estoy empezando'],['1','Menos de 1 año'],['2','1 a 3 años'],['3','Más de 3 años']]),num('dias_semana','Días que montas por semana','días',{min:0,max:7})]),
+    weeks('h','Horas por semana, últimas 4 semanas','h'),
+    row([num('larga_km','Salida más larga del último mes','km'),num('larga_h','Duración','h',{step:0.5}),num('desnivel','Desnivel típico por salida','m')])]},
+  marcas:{t:'Tus números de potencia',note:'Si tienes potenciómetro. Si no, salta esta sección.',src:'Allen y Coggan; Friel',f:[
+    row([num('ftp','FTP actual','W'),sel('ftp_origen','¿Cómo lo obtuviste?',[['20','Test de 20 min (−5 %)'],['8','Test de 8 min (−10 %)'],['30','Contrarreloj de 30 min'],['rampa','Test de rampa'],['app','Lo estima la app'],['nose','No sé']]),{id:'ftp_f',l:'Fecha',type:'date'}]),
+    row([num('p5s','Mejor 5 s','W'),num('p1m','Mejor 1 min','W'),num('p5m','Mejor 5 min','W'),num('p20m','Mejor 20 min','W')],'Mejores potencias de los últimos 3 meses (perfil de potencia)')]},
+  equipo:[txt('reloj','Ciclocomputador o reloj',{ph:'Ej.: Garmin Edge 530'}),...FC_FIELDS,
+    seg('potencia','¿Tienes potenciómetro?',[['no','No'],['pedales','Pedales'],['biela','Biela o araña'],['rodillo','Solo el del rodillo inteligente']]),
+    seg('rodillo','¿Tienes rodillo?',[['no','No'],['clasico','Clásico'],['smart','Inteligente']]),
+    seg('bici','Bici principal',[['ruta','Ruta'],['tt','Cabra o triatlón'],['mtb','MTB'],['gravel','Gravel']]),
+    seg('bikefit','¿Te han hecho un ajuste profesional de la bici (bike fit)?',YN),
+    multi('plataforma','¿Dónde quedan registrados tus entrenamientos?',PLATF),seg('acceso_datos','¿Me darías acceso de lectura a esa plataforma?',YN),COMPRAR,
+    num('cadencia','Cadencia típica en llano','rpm')],
+  acceso:[['puerto','Puerto o subida constante'],['llano','Tramo llano y seguro de 8–16 km'],['rodillo','Rodillo en casa'],['gym','Gimnasio']]
+},
+natacion:{
+  meta:[['salud','Nadar por salud o fitness'],['tecnica','Mejorar mi técnica'],['masters','Competir en másters'],['abiertas','Aguas abiertas'],['tri','Prepararme para triatlón']],
+  hist:{t:'Cómo vienes nadando',f:[
+    row([sel('anios','¿Hace cuánto nadas con regularidad?',[['0','Estoy empezando'],['1','Menos de 1 año'],['2','1 a 3 años'],['3','Más de 3 años']]),num('dias_semana','Sesiones por semana','',{min:0,max:14})]),
+    weeks('mt','Metros por semana, últimas 4 semanas','m'),
+    seg('estilo','Estilo principal',[['libre','Libre'],['espalda','Espalda'],['pecho','Pecho'],['mariposa','Mariposa'],['combinado','Combinado']]),
+    seg('base130','¿Puedes nadar 10 × 100 m libre saliendo cada 1:30?',[['si','Sí'],['no','No'],['nose','No sé']],{help:'Incluye nado y al menos 15 s de descanso por repetición.',src:'Lucero, Challenge Workouts'}),
+    seg('piscina','¿Dónde nadas?',[['25','Piscina de 25 m'],['50','Piscina de 50 m'],['abiertas','Aguas abiertas'],['varios','Varios']])]},
+  marcas:{t:'Marcas recientes',note:'De los últimos 3 meses, en piscina.',f:[
+    row([{id:'n100',l:'100 m libre',type:'time',ph:'m:ss'},{id:'n400',l:'400 m libre',type:'time',ph:'m:ss'},{id:'n1000',l:'1000 m libre',type:'time',ph:'m:ss'}])]},
+  equipo:[txt('reloj','Reloj de natación (si tienes)'),...FC_FIELDS,
+    multi('material','Material que tienes',[['pull','Pull buoy'],['aletas','Aletas'],['paletas','Paletas'],['tubo','Tubo frontal'],['tabla','Tabla']]),COMPRAR],
+  acceso:[['piscina','Piscina con reloj de ritmo'],['gym','Gimnasio'],['abiertas','Aguas abiertas']]
+},
+triatlon:{
+  meta:[['sprint','Sprint'],['olimpico','Olímpico'],['703','Medio Ironman (70.3)'],['ironman','Ironman'],['otro','Otro formato']],
+  hist:{t:'Cómo vienes entrenando',note:'Horas promedio por semana del último mes.',f:[
+    row([sel('anios','¿Hace cuánto haces triatlón?',[['0','Estoy empezando'],['1','Menos de 1 año'],['2','1 a 3 años'],['3','Más de 3 años']]),num('tri_carreras','Triatlones terminados','',{min:0})]),
+    row([num('h_swim','Natación','h/sem',{step:0.5}),num('h_bike','Ciclismo','h/sem',{step:0.5}),num('h_run','Carrera','h/sem',{step:0.5})],'Horas por semana'),
+    seg('limitante','¿Cuál sientes que es tu disciplina más débil?',[['swim','Natación'],['bike','Ciclismo'],['run','Carrera']])]},
+  marcas:{t:'Tus números',note:'Lo que tengas. Si no sabes alguno, déjalo en blanco.',src:'Friel, The Triathlete’s Training Bible',f:[
+    row([{id:'n1000',l:'1000 m nadando',type:'time',ph:'m:ss'},num('ftp','FTP en bici','W'),{id:'r5k',l:'Mejor 5K corriendo',type:'time'},{id:'r10k',l:'Mejor 10K',type:'time'}])]},
+  equipo:[txt('reloj','Reloj multideporte'),...FC_FIELDS,
+    seg('potencia','¿Tienes potenciómetro en la bici?',[['no','No'],['si','Sí'],['rodillo','Solo el del rodillo']]),
+    seg('potencia_run','¿Tienes potenciómetro de carrera?',[['no','No'],['stryd','Stryd'],['otro','Otro']]),
+    multi('plataforma','¿Dónde quedan registrados tus entrenamientos?',PLATF),seg('acceso_datos','¿Me darías acceso de lectura a esa plataforma?',YN),COMPRAR],
+  acceso:[['piscina','Piscina'],['abiertas','Aguas abiertas'],['rodillo','Rodillo'],['pista','Pista de atletismo'],['gym','Gimnasio']]
+},
+futbol:{
+  meta:[['recreativo','Recreativo'],['amateur','Amateur competitivo'],['semipro','Semiprofesional'],['pro','Profesional'],['juvenil','Juvenil o academia']],
+  hist:{t:'Tu deporte',f:[
+    sel('deporte_eq','Deporte',[['futbol','Fútbol'],['futsal','Fútbol sala'],['basket','Baloncesto'],['voley','Voleibol'],['beisbol','Béisbol o sóftbol'],['rugby','Rugby'],['balonmano','Balonmano'],['hockey','Hockey'],['otro','Otro']],{req:1}),
+    txt('deporte_otro','¿Cuál?',{show:s=>s.deporte_eq==='otro'}),
+    sel('pos_futbol','Posición',[['por','Portero'],['dc','Defensa central'],['lat','Lateral'],['mc','Mediocampista'],['ext','Extremo'],['del','Delantero']],{show:s=>s.deporte_eq==='futbol'||s.deporte_eq==='futsal'}),
+    sel('pos_basket','Posición',[['base','Base'],['escolta','Escolta'],['alero','Alero'],['alapivot','Ala-pívot'],['pivot','Pívot']],{show:s=>s.deporte_eq==='basket'}),
+    sel('pos_voley','Posición',[['armador','Armador'],['opuesto','Opuesto'],['central','Central'],['receptor','Receptor-punta'],['libero','Líbero']],{show:s=>s.deporte_eq==='voley'}),
+    sel('pos_beis','Posición',[['lanzador','Lanzador'],['receptor','Receptor'],['cuadro','Cuadro'],['jardinero','Jardinero'],['bateador','Bateador designado']],{show:s=>s.deporte_eq==='beisbol'}),
+    txt('pos_otro','Posición',{show:s=>['rugby','balonmano','hockey','otro'].includes(s.deporte_eq)}),
+    seg('lado','Lado dominante',[['der','Derecho'],['izq','Izquierdo'],['ambos','Ambos']]),
+    row([num('partidos','Partidos por semana','',{min:0,max:4}),num('minutos','Minutos promedio por partido','min'),num('entrenos','Entrenamientos de equipo por semana','',{min:0,max:10})]),
+    seg('superficie','Superficie habitual',[['natural','Césped natural'],['artificial','Césped artificial'],['madera','Cancha techada de madera'],['sintetica','Cancha sintética o cemento'],['arena','Arena'],['tierra','Tierra o arcilla']]),
+    seg('fifa11','¿Tu equipo hace el calentamiento FIFA 11+?',[['si','Sí'],['no','No'],['nose','No sé']],{show:s=>s.deporte_eq==='futbol'||s.deporte_eq==='futsal',src:'Strudwick, Soccer Science'}),
+    seg('nordic','¿Haces ejercicio nórdico de isquiotibiales?',[['no','No'],['aveces','A veces'],['si','Cada semana']]),
+    multi('molestias_eq','¿Te molesta algo al jugar?',[['hombro','Hombro'],['codo','Codo'],['lumbar','Zona lumbar'],['ingle','Ingle o aductores'],['isquio','Parte de atrás del muslo'],['rodilla','Rodilla'],['tobillo','Tobillo'],['nada','Nada']])]},
+  marcas:{t:'Tests que ya te hayan hecho',note:'Si tu club te evaluó, anota lo último. Si no, déjalo en blanco.',f:[
+    row([txt('yoyo','Yo-Yo IR1 (nivel o metros)'),num('sprint10','Sprint 10 m','s',{step:0.01}),num('sprint30','Sprint 30 m','s',{step:0.01}),num('cmj','Salto vertical','cm'),num('ttest','Test T de agilidad','s',{step:0.01})])]},
+  equipo:[txt('reloj','Reloj o GPS (si usas)'),...FC_FIELDS.slice(0,2)],
+  acceso:[['cancha','Cancha disponible fuera del equipo'],['gym','Gimnasio'],['pista','Pista de atletismo']]
+},
+raqueta:{
+  meta:[['salud','Jugar por salud'],['nivel','Subir mi nivel de juego'],['torneos','Competir en torneos'],['lesion','Volver de una lesión']],
+  hist:{t:'Tu juego',src:'Roetert y Kovacs, Complete Conditioning for Tennis (USTA)',f:[
+    row([seg('deporte_r','Deporte',[['tenis','Tenis'],['padel','Pádel'],['ambos','Ambos']]),seg('mano','Mano dominante',[['der','Derecha'],['izq','Izquierda']])]),
+    row([sel('nivel_r','Nivel',[['inicio','Iniciación'],['inter','Intermedio'],['avanz','Avanzado'],['compet','Competición']]),num('h_juego','Horas de juego por semana','h',{step:0.5}),num('partidos','Partidos por semana','',{min:0,max:10})]),
+    multi('molestias_r','¿Te molesta algo al jugar?',[['hombro','Hombro'],['codo','Codo'],['muneca','Muñeca'],['lumbar','Zona lumbar'],['rodilla','Rodilla'],['tobillo','Tobillo'],['nada','Nada']]),
+    seg('superficie','Superficie habitual',[['dura','Dura'],['arcilla','Arcilla'],['cesped','Césped sintético'],['cristal','Pista de pádel']])]},
+  marcas:null,
+  equipo:[txt('reloj','Reloj (si usas)'),...FC_FIELDS.slice(0,2)],
+  acceso:[['cancha','Cancha para entrenar físico'],['gym','Gimnasio'],['balon','Balón medicinal'],['dinamometro','Dinamómetro de mano']]
+},
+fuerza:{
+  meta:[['salud','Salud y composición corporal'],['hipertrofia','Ganar masa muscular'],['fuerza','Ganar fuerza (powerlifting)'],['deporte','Rendir mejor en mi deporte'],['volver','Volver después de una pausa o lesión']],
+  hist:{t:'Tu entrenamiento',src:'Nippard, The Muscle Ladder; Helms, The Muscle and Strength Pyramid',f:[
+    row([sel('anios','Años entrenando fuerza en serio',[['0','Estoy empezando'],['1','Menos de 1 año'],['2','2 a 5 años'],['3','5 a 10 años'],['4','Más de 10 años']]),num('dias_semana','Días por semana','días',{min:0,max:7})]),
+    seg('progreso','Hoy, ¿cada cuánto logras subir carga o repeticiones?',[['sesion','De una sesión a otra'],['semana','De una semana a otra'],['mes','De un mes a otro'],['estancado','Estoy estancado']],{src:'Helms (citando a Rippetoe)'}),
+    seg('rir','¿Sabes estimar cuántas repeticiones te quedan en reserva (RIR)?',[['si','Sí'],['masomenos','Más o menos'],['no','No']]),
+    seg('split','Cómo divides tu semana',[['full','Cuerpo completo'],['torso','Torso / pierna'],['ppl','Empuje / tirón / pierna'],['grupos','Un grupo por día'],['otro','Otro']])]},
+  marcas:{t:'Tus marcas actuales',note:'Peso × repeticiones de tu mejor serie reciente con buena técnica. Ej.: 80 × 5. Déjalo en blanco si no haces ese ejercicio.',src:'NSCA, tabla 17.7',f:[
+    row([txt('lf_sq','Sentadilla',{ph:'kg × reps'}),txt('lf_dl','Peso muerto',{ph:'kg × reps'}),txt('lf_bp','Press de banca',{ph:'kg × reps'})]),
+    row([txt('lf_ohp','Press militar',{ph:'kg × reps'}),txt('lf_pu','Dominadas',{ph:'reps (o kg extra × reps)'})])]},
+  equipo:[multi('equipo_f','Tienes acceso a',[['barra','Barra y discos'],['rack','Rack o jaula'],['mancuernas','Mancuernas'],['kb','Kettlebells'],['maquinas','Máquinas'],['bandas','Bandas'],['cajon','Cajón para saltos']]),
+    seg('vbt','¿Tienes medidor de velocidad de la barra o app de salto?',[['no','No'],['si','Sí']],{src:'Weakley 2021 (entrenamiento basado en velocidad)'}),...FC_FIELDS.slice(0,2)],
+  acceso:[['gym','Gimnasio completo'],['casa','Gimnasio en casa'],['parque','Parque o calistenia']]
+}};
+
+/* ---------- Autoevaluación ---------- */
+const T_DICHARRY=[
+  test('T1','Tobillo',['Siéntate en una silla con rodilla y tobillo doblados a 90°.','Sin mover el pie, desliza la cadera hacia adelante hasta que la rodilla pase la punta de los dedos.'],[{id:'t1',l:'¿El talón se quedó apoyado en el piso?',type:'lr',o:YN}],'Dicharry'),
+  test('T2','Dedo gordo',['En la misma posición, agarra el dedo gordo y levántalo recto.','La base del dedo tiene que seguir pegada al piso.'],[{id:'t2',l:'¿Sube unos 30° sin que se levante la planta?',type:'lr',o:YN}],'Dicharry'),
+  test('T3','Cadera',['Arrodíllate en una pierna dentro del marco de una puerta: muslo de atrás vertical y espinilla de adelante vertical.','Inclina la pelvis hacia atrás hasta pegar la zona lumbar al marco.'],[{id:'t3',l:'¿Sientes estiramiento al frente del muslo de la pierna de atrás?',type:'lr',o:YN,help:'«Derecha» = rodilla derecha en el piso.'}],'Dicharry'),
+  test('T4','Parte de atrás del muslo',['Acostado boca arriba, una pierna estirada en el piso.','Sube la otra pierna estirada sujetándola detrás del muslo.'],[{id:'t4',l:'¿Llegas a unos 70° (un poco menos que vertical) sin tirantez fuerte?',type:'lr',o:YN}],'Dicharry'),
+  test('T5','Control del dedo gordo',['De pie, empuja el dedo gordo contra el piso mientras levantas los otros cuatro.','El tobillo no se va ni hacia adentro ni hacia afuera.'],[{id:'t5',l:'¿Pudiste sin que el dedo gordo se doblara?',type:'lr',o:YN}],'Dicharry'),
+  test('T6','Postura con carga',['De pie y relajado, alguien detrás de ti presiona tus hombros hacia abajo con firmeza.'],[seg('t6','¿Se te arqueó la espalda o perdiste la postura?',[['si','Sí'],['no','No'],['solo','No tuve quién me ayudara']])],'Dicharry')];
+const T_HOMBRO=[
+  test('H1','Brazos por encima de la cabeza',['Boca abajo, brazos estirados al frente con los pulgares entrelazados.','Sin arquear la espalda ni levantar la cabeza, sube los brazos lo más que puedas.'],[seg('h1','¿Pudiste despegar los brazos del piso sin arquear la zona lumbar?',[['bien','Sí, bastante'],['poco','Muy poco'],['no','No']])],'Hekmati y Melin'),
+  test('H2','Rotación del hombro',['Boca arriba, brazo a 90° del cuerpo y codo doblado a 90°, con una toalla enrollada bajo el codo.','Rota la mano hacia el piso (hacia los pies), y luego hacia atrás (hacia la cabeza), sin despegar el hombro.'],[{id:'h2i',l:'Hacia los pies: ¿la palma llega cerca del piso?',type:'lr',o:YN},{id:'h2e',l:'Hacia la cabeza: ¿el dorso de la mano llega cerca del piso?',type:'lr',o:YN}],'Hekmati y Melin; USTA'),
+  test('H3','Rotación de la columna',['Sentado sobre los talones, palmas juntas frente al pecho.','Gira el tronco lo más que puedas a cada lado, dejando que la cabeza acompañe.'],[seg('h3','¿Giraste parecido a los dos lados?',[['si','Sí'],['no','No, un lado gira menos']])],'Hekmati y Melin')];
+const T_NADO=[
+  test('N1','Punta del pie',['Sentado o acostado, piernas estiradas y una toalla bajo las pantorrillas.','Estira las puntas de los pies hacia el piso lo más que puedas.'],[seg('n1','¿Los empeines quedan casi en línea con la espinilla?',[['si','Sí'],['no','No']])],'Hekmati y Melin'),
+  test('N2','Aguante de abdomen',['Sentado, rodillas dobladas, pies sujetos.','Espalda recta, dedos sobre las orejas, inclínate hacia atrás 45–60° y aguanta hasta que no puedas mantener la posición.'],[num('n2','Tiempo aguantado','s')],'Hekmati y Melin (McGill)'),
+  test('N3','Plancha lateral',['De lado, apoyado en el codo justo bajo el hombro, pies uno delante del otro.','Sube la cadera en línea con el cuerpo y aguanta.'],[row([num('n3d','Derecha','s'),num('n3i','Izquierda','s')])],'Hekmati y Melin')];
+const T_SALTO=test('S1','Salto horizontal',['Pies detrás de una línea. Toma impulso con los brazos y salta hacia adelante lo más lejos que puedas, cayendo con los dos pies.','Mide desde la línea hasta el talón más atrasado. Haz tres intentos.'],[num('salto_h','Mejor de 3 intentos','cm')],'NSCA; Thurgood');
+const T_FLEX=test('S2','Flexiones de brazos',['Cuerpo recto de cabeza a talones. Baja hasta que el pecho quede a un puño del piso.','Haz todas las que puedas sin parar y sin perder la postura.'],[num('flexiones','Repeticiones','')],'NSCA; USTA');
+const V_BASE=[
+  test('V1','Equilibrio en una pierna',['Cámara de frente, cuerpo completo, manos en la cintura.','30 s sobre la derecha y 30 s sobre la izquierda.','Repite con los ojos cerrados.'],[row([num('v1_ojosD','Ojos cerrados, derecha','s',{max:30}),num('v1_ojosI','Ojos cerrados, izquierda','s',{max:30})]),sent('v1')],'Dicharry'),
+  test('V3','Sentadilla a una pierna',['Cámara de frente, a la altura de la cadera. Que se vean pies, rodillas y hombros.','6 repeticiones lentas por pierna, bajando como para sentarte en una silla alta.'],[sent('v3')],'Dicharry'),
+  test('V4','Sentadilla con dos piernas',['De perfil a la cámara, manos en la cintura.','5 repeticiones.'],[sent('v4')],'Dicharry'),
+  test('V5','Puente',['Boca arriba, rodillas dobladas, brazos estirados hacia el techo con las manos juntas.','Sube la cadera y aguanta 30 s.','Levanta un pie unos centímetros y aguanta 30 s. Cambia de lado.'],[seg('v5_donde','¿Dónde sentiste el esfuerzo?',[['gluteo','Glúteo'],['isquio','Atrás del muslo'],['lumbar','Zona lumbar'],['nose','No sé']]),sent('v5')],'Dicharry')];
+const V_HOPS=test('V2','Saltos en una pierna',['De frente, salta en el sitio 30 s sobre cada pierna.'],[sent('v2')],'Dicharry');
+const V_OHS=test('V7','Sentadilla con palo sobre la cabeza',['Agarra un palo de escoba bien abierto y súbelo sobre la cabeza con los brazos rectos.','De perfil a la cámara: baja en 3 s, aguanta 1 s y sube rápido. 3 repeticiones.'],[sent('v7')],'Hekmati y Melin; NSCA');
+const V_SPORT={
+  running:test('V6','Corriendo',['10–15 s a ritmo cómodo pasando de lado frente a la cámara.','Luego 10–15 s acercándote y alejándote de ella.','En cámara lenta si tu teléfono lo permite.'],[sent('v6')]),
+  ciclismo:test('V6','En la bici',['Bici en el rodillo o apoyada en una pared, con la ropa y zapatillas de siempre.','30 s pedaleando de lado a la cámara y 30 s de frente.'],[sent('v6')]),
+  natacion:test('V6','Nadando',['Si alguien puede grabarte: 25 m de tu estilo principal, de lado y, si se puede, desde el frente.'],[sent('v6')]),
+  triatlon:test('V6','Corriendo',['10–15 s a ritmo cómodo pasando de lado frente a la cámara, y luego de frente.'],[sent('v6')]),
+  futbol:test('V6','Cambio de dirección',['Corre 5 m, frena y cambia de dirección hacia cada lado, de frente a la cámara.'],[sent('v6')]),
+  raqueta:test('V6','Golpes',['Si alguien puede grabarte: 3 saques o remates y 3 golpes de fondo, de lado.'],[sent('v6')]),
+  fuerza:test('V6','Tus básicos',['Una serie ligera de sentadilla y una de peso muerto (o bisagra de cadera), de perfil.'],[sent('v6')])};
+function autoTests(d){
+  const self=[...T_DICHARRY];
+  if(['natacion','triatlon','raqueta','fuerza','futbol'].includes(d))self.push(...T_HOMBRO);
+  if(d==='natacion')self.push(...T_NADO);
+  if(['futbol','raqueta','fuerza'].includes(d))self.push(T_SALTO);
+  if(['raqueta','fuerza'].includes(d))self.push(T_FLEX);
+  const vids=[...V_BASE];
+  if(['running','futbol','raqueta','triatlon'].includes(d))vids.splice(1,0,V_HOPS);
+  if(['natacion','fuerza','raqueta'].includes(d))vids.push(V_OHS);
+  vids.push(V_SPORT[d]);
+  return {self,vids};
+}
+
+/* ---------- Check-in semanal (Gabbett 2017; Bishop 2025) ---------- */
+const CK_VOL={
+  running:[row([num('vol_km','Kilómetros de la semana','km'),num('larga','Tirada más larga','km',{step:0.1})])],
+  ciclismo:[row([num('vol_h','Horas de la semana','h',{step:0.5}),num('vol_km','Kilómetros','km')])],
+  natacion:[row([num('vol_m','Metros de la semana','m')])],
+  triatlon:[row([num('h_swim','Natación','h',{step:0.5}),num('h_bike','Ciclismo','h',{step:0.5}),num('h_run','Carrera','h',{step:0.5})],'Horas de la semana')],
+  futbol:[row([num('partidos','Partidos','',{min:0}),num('minutos','Minutos jugados','min'),num('entrenos','Entrenamientos de equipo','')])],
+  raqueta:[row([num('h_juego','Horas de juego','h',{step:0.5}),num('partidos','Partidos','')])],
+  fuerza:[seg('cargas','¿Subiste carga o repeticiones esta semana?',[['si','Sí'],['igual','Me mantuve'],['no','Bajé'],['nose','No sé']])]};
+const EFFORT_HELP='1–2 muy fácil · 3–4 fácil · 5–6 algo duro · 7–8 duro · 9–10 muy duro';
+
+function makeSchema(d){
+  d=ING[d]?d:'running';
+  const I=ING[d], A=autoTests(d);
+  const objetivo={t:'Tu objetivo',f:[
+    sel('meta','¿Qué quieres lograr?',I.meta),
+    row([txt('carrera',d==='futbol'||d==='raqueta'?'Competencia o temporada objetivo':'Carrera o evento objetivo'),{id:'fecha_carrera',l:'Fecha',type:'date'}]),
+    sel('prioridad','¿Qué tan importante es?',[['A','A · lo más importante del año'],['B','B · importante'],['C','C · de preparación']])]};
+  const disp={t:S_DISPON.t,f:[...S_DISPON.f.slice(0,2),multi('acceso','Tienes acceso a',I.acceso),S_DISPON.f[2]]};
+  const ingreso=[S_DATOS,objetivo,I.hist];
+  if(I.marcas)ingreso.push(I.marcas);
+  ingreso.push(disp,{t:'Tu equipo',note:'Esto define qué tests puedes hacer. No hace falta comprar nada para empezar.',f:I.equipo},S_SALUD,S_LESION,S_RESP,S_ERGO,S_CONSENT);
+  return {
+    ingreso:{n:'01',tab:'Ingreso',hash:'ingreso',title:'Ingreso',time:'8–10 min',freq:'Una sola vez',
+      lead:'Quién eres, qué quieres lograr y con qué cuentas. Con esto defino tu perfil y el primer test que vamos a hacer.',sections:ingreso},
+    autoeval:{n:'02',tab:'Autoevaluación',hash:'autoevaluacion',title:'Autoevaluación de movimiento',time:'15–20 min',freq:'Al inicio y cada 10–12 semanas',
+      lead:'Pruebas que respondes tú, y videos que grabas para que yo los puntúe. Usa ropa que deje ver rodillas y tobillos, y apoya el teléfono en algo fijo.',
+      sections:[{t:'Tus datos',f:[txt('nombre','Nombre y apellido',{req:1})]},
+        {t:'Pruebas que respondes tú',note:'Haz cada una con los dos lados. Si alguna te da corrientazo, hormigueo o dolor, detente y anótalo en el comentario final.',f:A.self},
+        {t:'Videos para enviarme',note:'Grábalos, envíamelos por WhatsApp y marca cada uno como enviado.',f:[...A.vids,{id:'coment',l:'Comentario',type:'textarea',ph:'Algo que te llamó la atención o te molestó'}]}]},
+    checkin:{n:'03',tab:'Check-in',hash:'checkin',title:'Check-in semanal',time:'1 min',freq:'Cada domingo',
+      lead:'Cómo te fue esta semana. Responde aunque no hayas entrenado: eso también me sirve.',
+      sections:[{t:'Tu semana',f:[
+        row([txt('nombre','Nombre y apellido',{req:1}),{id:'semana',l:'Semana que termina el',type:'date',req:1}]),
+        row([num('ses_hechas','Sesiones hechas','',{min:0,max:21}),num('ses_plan','De las planificadas','',{min:0,max:21}),num('min_total','Minutos totales','min')]),
+        ...CK_VOL[d],
+        {id:'rpe',l:'¿Qué tan dura se sintió la semana?',type:'scale',min:1,max:10,help:EFFORT_HELP},
+        row([num('sueno','Sueño promedio','h',{step:0.5}),num('fc_rep','FC en reposo promedio','lpm')]),
+        {id:'sueno_cal',l:'Calidad del sueño',type:'scale',min:1,max:5,help:'1 = muy mala · 5 = excelente.'},
+        {id:'fatiga',l:'Cansancio general',type:'scale',min:1,max:5,help:'1 = fresco · 5 = agotado.'},
+        {id:'agujetas',l:'Dolor muscular por el entrenamiento',type:'scale',min:1,max:5,help:'1 = nada · 5 = mucho.'},
+        {id:'estres',l:'Estrés fuera del entrenamiento',type:'scale',min:1,max:5,help:'1 = tranquilo · 5 = muy alto.'},
+        {id:'dolor',l:'Dolor o molestia de lesión más fuerte de la semana',type:'scale',min:0,max:10,help:'0 = nada · 10 = no pude entrenar. Hasta 3 suele ser tolerable si no empeora al día siguiente.'},
+        txt('dolor_zona','¿Dónde?',{show:s=>+s.dolor>0}),
+        num('bolt','BOLT del domingo al despertar','s',{help:'Opcional.'}),
+        {id:'coment',l:'Comentario',type:'textarea'}]}]}
+  };
+}
+
+/* ===== Rehabilitación cardiopulmonar (parte del paciente) =====
+   Fuentes: ERS/ATS Field Walking Tests (Holland 2014); ATS/ERS Pulmonary Rehabilitation (Spruit 2013);
+   AHA/AACVPR Core Components 2024; McConnell (IMT); Akpa 2024 (tos en neuromusculares); Walters (señales de alarma). */
+DISC_LABEL.rehab='Pacientes / Rehabilitación';
+DISCS.push(['rehab','Pacientes / Rehabilitación']);
+const URGENTE=[['pecho','Dolor u opresión en el pecho en reposo, o que no se quita'],['aire','Falta de aire en reposo que va empeorando'],['morado','Labios o dedos morados'],['desmayo','Desmayo reciente'],['sangre','Tos con sangre'],['fiebre','Fiebre con más dificultad para respirar'],['pierna','Una pierna hinchada, roja o dolorosa de repente'],['sat','Saturación en reposo de 85 % o menos (con tu oxígeno habitual)'],['nada','Nada de esto']];
+const urgentAlert=id=>({id:id+'_alerta',type:'alert',show:s=>Array.isArray(s[id])&&s[id].some(x=>x!=='nada'),
+  text:'Esto necesita atención médica hoy. No esperes a la consulta: acude a una emergencia o llama a tu médico. Puedes terminar la ficha después.'});
+const MMRC=[['0','Solo me falta el aire con ejercicio intenso'],['1','Me falta al caminar rápido o subir una pendiente leve'],['2','Camino más lento que otros de mi edad, o tengo que parar a respirar'],['3','Paro a respirar a los ~100 m o a los pocos minutos de caminar en plano'],['4','No salgo de casa por la falta de aire, o me falta al vestirme']];
+const CONDICIONES=[['epoc','EPOC'],['asma','Asma'],['post_inf','Después de COVID, influenza u otra infección respiratoria'],['fibrosis','Fibrosis pulmonar'],['ic','Insuficiencia cardíaca'],['neuromusc','Enfermedad neuromuscular'],['traqueo','Traqueostomía'],['vm','Ventilación mecánica'],['otra','Otra']];
+
+function makeRehabSchema(){
+  return {
+    ingreso:{n:'01',tab:'Ingreso',hash:'ingreso',title:'Ingreso del paciente',time:'10–12 min',freq:'Una sola vez, antes de la primera consulta',
+      lead:'Lo que necesito saber antes de verte. Si te ayuda un familiar o cuidador, puede llenarla por ti. Las pruebas físicas las hacemos juntos en la consulta.',
+      sections:[
+        {t:'Antes de empezar',note:'Si hoy tienes alguna de estas señales, primero busca atención médica.',f:[multi('urgente','¿Tienes hoy alguna de estas señales?',URGENTE),urgentAlert('urgente')]},
+        {t:'Datos del paciente',f:[
+          seg('llena','¿Quién llena la ficha?',[['paciente','El paciente'],['familiar','Un familiar o cuidador']]),
+          txt('cuidador','Nombre de quien ayuda',{show:s=>s.llena==='familiar'}),
+          txt('nombre','Nombre y apellido del paciente',{req:1}),
+          row([num('edad','Edad','años',{min:1,max:110}),sel('sexo','Sexo',[['f','Femenino'],['m','Masculino']])]),
+          row([num('peso','Peso','kg',{step:0.1}),num('talla','Talla','cm')]),
+          row([txt('contacto','WhatsApp o correo'),txt('ciudad','Ciudad')]),
+          seg('modalidad','¿Cómo prefieres las sesiones?',[['presencial','Presencial en Caracas'],['online','En línea'],['mixta','Mixta']])]},
+        {t:'Diagnóstico',f:[
+          multi('condicion','Condición principal',CONDICIONES),
+          txt('dx_detalle','Diagnóstico como lo escribió tu médico',{ph:'Ej.: EPOC GOLD 3; IC con FE reducida'}),
+          row([{id:'dx_fecha',l:'Fecha del diagnóstico',type:'date'},txt('medico','Médico tratante y especialidad')]),
+          seg('informe','¿Tienes un informe médico reciente (últimos 6 meses)?',[['si','Sí, lo envío'],['no','No']],{help:'Envíamelo por WhatsApp junto con espirometrías, ecocardiogramas o pruebas de esfuerzo que tengas.'})]},
+        {t:'Hospitalizaciones y crisis',f:[
+          row([num('hosp_12m','Hospitalizaciones en el último año','',{min:0}),{id:'hosp_ult',l:'Fecha de la última',type:'date'}]),
+          seg('uci','¿Has estado alguna vez en terapia intensiva o conectado a un ventilador?',YN),
+          num('exacerb_12m','Crisis o recaídas en el último año que necesitaron antibiótico o esteroide','',{min:0})]},
+        {t:'Medicación y soporte',f:[
+          multi('meds','¿Tomas alguno de estos?',[['rescate','Inhalador de rescate (ej. salbutamol)'],['mant','Inhalador de mantenimiento'],['cortico','Esteroide oral (ej. prednisona)'],['betabloq','Betabloqueante (ej. bisoprolol, carvedilol, metoprolol, nebivolol)'],['diuretico','Diurético (ej. furosemida)'],['anticoag','Anticoagulante'],['antiarr','Antiarrítmico (ej. amiodarona)'],['nada','Ninguno']]),
+          {id:'meds_lista',l:'Lista de medicamentos con dosis',type:'textarea',help:'O envía una foto de las cajas o de la receta.'},
+          seg('oxigeno','Oxígeno en casa',[['no','No uso'],['esfuerzo','Solo al hacer esfuerzo'],['noche','Solo de noche'],['continuo','Todo el día']]),
+          num('o2_lpm','Litros por minuto','L/min',{step:0.5,show:s=>s.oxigeno&&s.oxigeno!=='no'}),
+          multi('soporte','Otros soportes',[['cpap','CPAP'],['vni','BiPAP o ventilación no invasiva'],['traqueo','Traqueostomía'],['vm','Ventilador en casa'],['tos','Asistente de tos'],['nada','Ninguno']]),
+          txt('canula','Tipo y número de cánula',{show:s=>Array.isArray(s.soporte)&&s.soporte.includes('traqueo')}),
+          num('vm_horas','Horas al día con ventilador','h',{show:s=>Array.isArray(s.soporte)&&(s.soporte.includes('vm')||s.soporte.includes('vni'))})]},
+        {t:'Síntomas',f:[
+          seg('mmrc','¿Qué frase describe mejor tu falta de aire?',MMRC,{src:'Escala mMRC de disnea'}),
+          multi('sintomas','En el último mes has tenido…',[['flema','Tos con flema casi todos los días'],['sibilancias','Silbido en el pecho'],['pecho_esf','Dolor u opresión en el pecho al hacer esfuerzo'],['palpit','Palpitaciones'],['mareo','Mareo al hacer esfuerzo'],['edema','Tobillos hinchados'],['ortopnea','Necesito varias almohadas o me despierto ahogado'],['peso_rapido','Subí de peso rápido en pocos días'],['tos_debil','Tos débil, me cuesta botar la flema'],['atragant','Me atraganto al comer o beber'],['nada','Nada de esto']])]},
+        {t:'Tu día a día',f:[
+          seg('marcha','¿Cómo caminas?',[['solo','Sin ayuda'],['ayuda','Con bastón o andadera'],['silla','En silla de ruedas'],['cama','Paso la mayor parte del día en cama']]),
+          row([num('cuadras','¿Cuántas cuadras caminas sin parar?','',{min:0}),num('caidas_12m','Caídas en el último año','',{min:0})]),
+          seg('escalera','¿Subes un piso de escaleras sin parar?',[['si','Sí'],['pausas','Con pausas'],['no','No']]),
+          multi('avd','¿Te cuesta alguna de estas actividades?',[['vestirse','Vestirme'],['banarse','Bañarme'],['cocinar','Cocinar o limpiar'],['salir','Salir solo a la calle'],['nada','Ninguna']])]},
+        {t:'Mediciones en casa',note:'Solo si tienes los equipos. Mídelo sentado, después de 5 minutos de reposo.',f:[
+          multi('equipo_casa','Equipos que tienes',[['oximetro','Oxímetro'],['tensiometro','Tensiómetro'],['balanza','Balanza'],['flujometro','Medidor de flujo pico'],['nada','Ninguno']]),
+          row([num('spo2_casa','Saturación en reposo','%',{min:50,max:100}),num('fc_casa','Pulso en reposo','lpm')]),
+          row([num('pas_casa','Presión sistólica','mmHg'),num('pad_casa','Presión diastólica','mmHg')])]},
+        {t:'Otras condiciones',f:[
+          multi('comorb','¿Tienes alguna de estas?',[['hta','Hipertensión'],['diabetes','Diabetes'],['obesidad','Obesidad'],['osteo','Osteoporosis'],['artrosis','Artrosis o dolor articular'],['renal','Enfermedad renal'],['apnea','Apnea del sueño'],['animo','Ansiedad o depresión'],['nada','Ninguna']],{src:'AHA/AACVPR Core Components 2024'}),
+          seg('tabaco','Tabaco',[['nunca','Nunca fumé'],['ex','Exfumador'],['fuma','Fumo']]),
+          multi('vacunas','Vacunas al día',[['influenza','Influenza'],['neumococo','Neumococo'],['covid','COVID-19'],['nose','No sé']]),
+          multi('imt_prec','¿Has tenido alguna de estas?',[['neumo_esp','Neumotórax (pulmón colapsado) sin golpe previo'],['neumo_trauma','Neumotórax por golpe que no ha sanado'],['timpano','Tímpano perforado u otro problema de oído'],['bullas','Bullas pulmonares diagnosticadas'],['nada','Ninguna']],{src:'McConnell, Respiratory Muscle Training (precauciones del IMT)'})]},
+        {t:'Tus objetivos',f:[
+          multi('objetivos','¿Qué te gustaría lograr?',[['caminar','Caminar más sin ahogarme'],['escaleras','Subir escaleras'],['autonomia','Hacer mis cosas sin ayuda'],['trabajo','Volver a trabajar'],['oxigeno','Depender menos del oxígeno'],['ejercicio','Volver a hacer ejercicio o deporte'],['crisis','Tener menos crisis']]),
+          {id:'objetivo_txt',l:'En tus palabras',type:'textarea'}]},
+        {t:'Respiración',f:[{id:'isr',type:'isr'}]},
+        {t:'Consentimiento',f:[
+          {id:'consent',l:'Autorizo a Rafael Quintana (Terapia Respiratoria) a guardar y usar estos datos solo para evaluarme y programar mi rehabilitación. Entiendo que este programa no reemplaza la atención de mi médico.',type:'check',req:1},
+          {id:'consent_wa',l:'Si uso la opción de WhatsApp, acepto enviar estas respuestas por ese medio.',type:'check'}]}
+      ]},
+    checkin:{n:'02',tab:'Seguimiento',hash:'checkin',title:'Seguimiento semanal',time:'2 min',freq:'Cada domingo',
+      lead:'Cómo estuviste esta semana. Si algo empeoró de golpe, no esperes al domingo: escríbeme o busca atención médica.',
+      sections:[{t:'Tu semana',f:[
+        multi('urgente','¿Tienes hoy alguna de estas señales?',URGENTE),urgentAlert('urgente'),
+        row([txt('nombre','Nombre del paciente',{req:1}),{id:'semana',l:'Semana que termina el',type:'date',req:1}]),
+        row([num('ses_hechas','Sesiones de ejercicio hechas','',{min:0,max:21}),num('ses_plan','De las planificadas','',{min:0,max:21}),num('imt_ses','Sesiones de IMT hechas','',{min:0,max:28})]),
+        {id:'borg_disnea',l:'Falta de aire en la sesión más dura',type:'scale',min:0,max:10,help:'0 = nada · 3 = moderada · 5 = fuerte · 7 = muy fuerte · 10 = máxima (escala de Borg).'},
+        {id:'fatiga',l:'Cansancio general',type:'scale',min:1,max:5,help:'1 = con energía · 5 = agotado.'},
+        multi('cambios','Esta semana tuviste…',[['mas_tos','Más tos o más flema'],['color','Flema de otro color'],['fiebre','Fiebre'],['edema','Más hinchazón en los tobillos'],['peso','Subí de peso rápido'],['pecho','Dolor u opresión en el pecho'],['mareo','Mareos'],['nada','Nada de esto']]),
+        num('rescate_veces','Veces que usaste el inhalador de rescate','',{min:0}),
+        row([num('spo2','Saturación en reposo (promedio)','%',{min:50,max:100}),num('fc_rep','Pulso en reposo','lpm'),num('peso','Peso','kg',{step:0.1})]),
+        {id:'sueno_cal',l:'¿Cómo dormiste?',type:'scale',min:1,max:5,help:'1 = muy mal · 5 = muy bien.'},
+        {id:'coment',l:'Comentario',type:'textarea'}]}]}
+  };
+}
+const _makeSchemaSport=makeSchema;
+makeSchema=function(d){return d==='rehab'?makeRehabSchema():_makeSchemaSport(d)};
+
+/* ---------- utilidades ---------- */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const dec=n=>String(n).replace('.',',');
+const parseT=s=>{if(!s)return null;const p=String(s).trim().split(':').map(Number);if(p.some(isNaN)||p.length<2||p.length>3)return null;return p.reduce((a,b)=>a*60+b,0)};
+const fmtDate=v=>{if(!v)return '';const[y,m,d]=v.split('-');return `${d}/${m}/${y}`};
+const fmtIso=iso=>{try{return new Date(iso).toLocaleDateString('es-VE',{day:'numeric',month:'short',year:'numeric'})}catch(e){return iso}};
+const keyOf=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'sin-nombre';
+const hash=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return (h>>>0).toString(36)};
+const b64e=s=>{const b=new TextEncoder().encode(s);let o='';for(let i=0;i<b.length;i++)o+=String.fromCharCode(b[i]);return btoa(o)};
+const b64d=s=>new TextDecoder().decode(Uint8Array.from(atob(s),c=>c.charCodeAt(0)));
+function labelOf(o,v){const x=o&&o.find(a=>a[0]===v);return x?x[1]:v}
+function valStr(f,d){
+  const v=d[f.id];
+  switch(f.type){
+    case 'seg':case 'select':return v?labelOf(f.o,v):'';
+    case 'multi':return Array.isArray(v)&&v.length?v.map(x=>labelOf(f.o,x)).join(', '):'';
+    case 'lr':{const a=d[f.id+'_D'],b=d[f.id+'_I'];return (a||b)?`D ${a?labelOf(f.o,a):'—'} · I ${b?labelOf(f.o,b):'—'}`:''}
+    case 'check':return v?'Sí':'';
+    case 'number':return (v!==undefined&&v!=='')?`${dec(v)}${f.u?' '+f.u:''}`:'';
+    case 'date':return fmtDate(v);
+    default:return v?String(v):'';
+  }
+}
+function visible(f,d){return !f.show||f.show(d)}
+function summaryLines(m,d,sch){
+  const out=[];
+  (sch||SCHEMA)[m].sections.forEach(s=>{
+    const lines=[];
+    const walk=(arr,prefix)=>arr.forEach(f=>{
+      if(f.type==='row')return walk(f.f,f.l?f.l+' · ':prefix);
+      if(f.type==='test')return walk(f.f,`${f.code} ${f.t} · `);
+      if(!visible(f,d))return;
+      const v=valStr(f,d); if(v)lines.push(`${prefix||''}${f.l}: ${v}`);
+    });
+    walk(s.f,'');
+    if(lines.length)out.push(`— ${s.t} —`,...lines,'');
+  });
+  return out;
+}
+/* ---------- panel privado (solo el dueño) ---------- */
+let db=null, owner=false, FICHAS=[], EVALS={}, confirmDel=null, importMsg='';
+const SCH_CACHE={};
+function schemaOf(disc){
+  disc=(ING[disc]||disc==='rehab')?disc:'running';
+  if(!SCH_CACHE[disc]){const sch=makeSchema(disc),field={};
+    Object.keys(sch).forEach(m=>{field[m]={};const walk=a=>a.forEach(f=>{if(f.type==='row'||f.type==='test')walk(f.f);else field[m][f.id]=f});sch[m].sections.forEach(s=>walk(s.f))});
+    SCH_CACHE[disc]={sch,field}}
+  return SCH_CACHE[disc];
+}
+const lab=(disc,id,v)=>{const F=schemaOf(disc).field;const f=(F.ingreso&&F.ingreso[id])||(F.checkin&&F.checkin[id])||(F.autoeval&&F.autoeval[id]);return f&&f.o?labelOf(f.o,v):v};
+const avgOf=(d,keys)=>{const a=keys.map(k=>parseFloat(d[k])).filter(x=>!isNaN(x));return a.length?a.reduce((x,y)=>x+y,0)/a.length:null};
+const avgKm=d=>avgOf(d,['km1','km2','km3','km4']);
+/* Clasificación de FTP en W/kg usada en ciclismo (van Dijk y van Megen, The Secret of Running, cap. 19) */
+const FTP_CLASS={m:[[6.4,'nivel mundial'],[5.8,'internacional'],[5.1,'nacional'],[4.5,'regional'],[3.8,'«turista»'],[3.2,'aceptable'],[2.6,'no entrenado'],[1.9,'bajo'],[0,'muy bajo']],
+                 f:[[5.7,'nivel mundial'],[5.1,'internacional'],[4.6,'nacional'],[4.0,'regional'],[3.4,'«turista»'],[2.8,'aceptable'],[2.3,'no entrenado'],[1.7,'bajo'],[0,'muy bajo']]};
+const ftpClass=(wkg,sexo)=>{const t=FTP_CLASS[sexo==='f'?'f':'m'];return (t.find(([v])=>wkg>=v)||t[t.length-1])[1]};
+/* NSCA, tabla 17.7: % de 1RM según repeticiones; fiable hasta 10 repeticiones */
+const PCT={1:100,2:95,3:93,4:90,5:87,6:85,7:83,8:80,9:77,10:75};
+function e1rm(s){const m=String(s||'').replace(',','.').match(/(\d+(?:\.\d+)?)\s*[x×]\s*(\d+)/i);if(!m)return null;const kg=+m[1],r=+m[2];if(!PCT[r])return null;return Math.round(kg/PCT[r]*100)}
+function riegel(d){
+  const ms=[1,2,3].map(i=>({d:parseFloat(d[`m${i}_d`]),t:parseT(d[`m${i}_t`])})).filter(x=>x.d&&x.t);
+  if(ms.length<2)return null; ms.sort((a,b)=>a.d-b.d); const a=ms[0],b=ms[ms.length-1]; if(a.d===b.d)return null;
+  const k=Math.log((b.d/b.t)/(a.d/a.t))/Math.log(b.d/a.d);
+  return {k,cls:k>-0.06?'resistente':k<-0.08?'veloz':'normal'};
+}
+const beginnerYears=d=>d.anios==='0'||d.anios==='1';
+
+/* Perfil y test sugerido por disciplina */
+function profileOf(disc,d){
+  const ergo=d.ergo==='si'||d.ergo==='tengo';
+  const P=(code,label,test,src)=>({code,label,test,src,ergo});
+  switch(disc){
+    case 'rehab':{
+      const c=Array.isArray(d.condicion)?d.condicion.map(x=>lab('rehab','condicion',x)).join(', '):'sin diagnóstico';
+      return P('RC','Rehabilitación · '+c,'En consulta: signos vitales y auscultación; PIM/PEM; caminata de 6 min (con su oxígeno habitual si lo usa; dos intentos con 30 min de pausa si vas a medir cambio); flujo pico de tos si es neuromuscular; espirometría si aplica.','ERS/ATS 2014 (Holland); McConnell; Akpa 2024');
+    }
+    case 'ciclismo':{
+      const pow=(d.potencia&&d.potencia!=='no')||!!d.ftp, h=avgOf(d,['h1','h2','h3','h4']);
+      if(beginnerYears(d)||(h!=null&&h<3))return P('C3','Ciclista que empieza','Base por esfuerzo percibido y FC. Primer test de 20′ cuando tolere 1 h continua.','[Suposición] criterio de Rafael/Claude');
+      return pow?P('C1','Ciclista con potencia','Test de 20′: FTP = potencia media × 0,95 y FTHR = FC media × 0,95. Perfil de potencia 5 s / 1′ / 5′ / FTP. FAeT con EF cada 3–4 semanas.','Allen y Coggan; Friel')
+                :P('C2','Ciclista con FC','Test de 20′ en subida constante o rodillo: FTHR = FC media × 0,95. Zonas por FC y esfuerzo percibido.','Friel');
+    }
+    case 'natacion':
+      return d.base130==='si'?P('S2','Nadador avanzado','1000 m contrarreloj → T-time por 100 m. Kilómetro roto: 10 × 100 con 10″ de pausa, tiempo total − 90″.','Friel (Triathlete’s Training Bible)')
+                             :P('S1','Nadador en desarrollo','Nados por tiempo de 5′, 10′ y 15′, y marcas de 50–200 m cada ~5 sesiones. Técnica primero.','Lucero (Shape Up!)');
+    case 'triatlon':
+      return P('T1','Triatleta','1000 m natación (T-time), 20′ en bici (FTP/FTHR) y 20′ corriendo (FTHR = FC × 0,95; ritmo umbral = ritmo × 1,05). Desacople Pw:HR y Pa:HR en los largos.','Friel (Triathlete’s Training Bible)');
+    case 'futbol':{
+      const dep=d.deporte_eq||(d.posicion?'futbol':''), depL=dep==='otro'?(d.deporte_otro||'Otro deporte'):(lab('futbol','deporte_eq',dep)||'Deporte de equipo');
+      const pos=lab('futbol','pos_'+({futsal:'futbol'}[dep]||dep),d['pos_'+({futsal:'futbol'}[dep]||dep)])||d.pos_otro||lab('futbol','pos_futbol',d.posicion)||'';
+      const T={futbol:['Yo-Yo IR1, RSA 6 × 30 m (tiempo total y % de caída), sprint 10 y 30 m, salto vertical; el salto también sirve para ver la recuperación 24–96 h después del partido.','Strudwick (Soccer Science); NSCA'],
+        basket:['Salto vertical (CMJ), test T, sprint 10 y 20 m, Yo-Yo IR1.','NSCA; [Suposición] selección para baloncesto'],
+        voley:['Salto vertical (CMJ), test T o hexágono, rotación de hombro.','NSCA; Hekmati; [Suposición] selección para voleibol'],
+        beisbol:['Sprint 10 y 30 m, salto vertical, rotación de hombro y columna, prensión.','NSCA; USTA; [Suposición] selección para béisbol'],
+        otro:['Yo-Yo IR1, RSA 6 × 30 m, sprint 10 y 30 m, salto vertical, test T.','NSCA; [Suposición] batería general de equipo']};
+      T.futsal=T.futbol; T.rugby=T.balonmano=T.hockey=T.otro;
+      const t=T[dep]||T.otro;
+      return P('E1',depL+(pos?' · '+pos:''),t[0],t[1]);
+    }
+    case 'raqueta':
+      return P('R1',d.deporte_r==='padel'?'Jugador de pádel':'Tenista','Batería USTA: hexágono, spider run, 20 yardas (18,3 m), desplazamiento lateral, lanzamientos con balón de 2,7 kg, salto vertical, prensión, rotación de hombro, flexiones.'+(d.deporte_r==='padel'?' En pádel, adaptar distancias a la pista de 10 × 20 m.':''),'Roetert y Kovacs (USTA)'+(d.deporte_r==='padel'?'; [Suposición] adaptación a pádel':''));
+    case 'fuerza':{
+      const lvl={'0':'principiante','1':'principiante','2':'intermedio','3':'avanzado','4':'avanzado'}[d.anios]||'sin dato';
+      return lvl==='principiante'||lvl==='sin dato'
+        ?P('G1','Fuerza · '+lvl,'Técnica primero. Pruebas de RM por repeticiones (no 1RM). Orden NSCA: salto y movilidad → fuerza → resistencia muscular.','NSCA; Nippard')
+        :P('G2','Fuerza · '+lvl,'1RM o 3RM con protocolo NSCA (calentamiento progresivo, 3–5 intentos, 1–5′ de pausa). Prescribir con RPE/RIR.','NSCA; Helms');
+    }
+    default:{
+      const km=avgKm(d); const beg=beginnerYears(d)||(km!=null&&km<15);
+      const code=beg?(d.comprar==='si'?'P3':'P4'):(d.potencia&&d.potencia!=='no'?'P1':'P2');
+      const R={P1:['Fondista equipado','3/9 + 30′ en las 3 primeras ventanas para calibrar su factor · luego solo 3/9 · lanzado 30 m','Vance; Banta'],
+               P2:['Fondista con reloj','3/9 por ritmo · 30′ para FC umbral · recta FC–ritmo en circuito fijo','Vance; van Dijk'],
+               P3:['Principiante que se equipa','Evaluación Dicharry completa primero · 3/9 (no 30′) · potencia solo para análisis','Dicharry; Vance'],
+               P4:['10K sin morir','Dicharry corto · contrarreloj 5K → 10K ≈ 5K × 2,10','Dicharry; van Dijk (Riegel)']}[code];
+      return P(code,R[0],R[1],R[2]);
+    }
+  }
+}
+const ERGO_TXT={running:'Cinta: escalones de 3′, +1 km/h desde 5 km/h bajo su ritmo de 10K; validar con 3/9 en campo (van Dijk).',
+  ciclismo:'Cicloergómetro con potenciómetro; contrastar después con un 20′ de campo: el FTP de laboratorio puede salir más alto (Arguedas).',
+  natacion:'Ergoespirometría poco específica para nado: priorizar tests en piscina.',triatlon:'Cinta o cicloergómetro según su limitante; validar en campo.',
+  futbol:'Cinta incremental; complementar con Yo-Yo IR1 en campo.',raqueta:'Cinta incremental; complementar con la batería USTA.',fuerza:'Solo si hay objetivo cardiometabólico.'};
+
+function flagsOf(disc,rec,checkins){
+  const d=rec.d, f=[];
+  if(disc==='rehab')return rehabFlags(d,checkins);
+  const pq=PQ.filter(k=>d[k]==='si'); if(pq.length)f.push(['warn','PAR-Q+: sí en '+pq.map(k=>k.slice(2)).join(', ')]);
+  if(Array.isArray(d.alarmas)&&d.alarmas.some(x=>x!=='nada'))f.push(['warn','Señales de alarma: '+d.alarmas.filter(x=>x!=='nada').map(x=>lab(disc,'alarmas',x)).join(', ')]);
+  [1,2].forEach(i=>{const v=parseFloat(d[`les${i}_hoy`]);if(v>=3)f.push(['warn',`Dolor hoy ${v}/10 · ${d['les'+i]||'lesión'}`])});
+  const rs=Array.isArray(d.resp_sint)?d.resp_sint:[];
+  const eilo=(d.resp_inicio==='rapido')+(d.resp_ruido==='inhalar')+(d.resp_dura==='corto')+rs.includes('garganta')+(d.inhalador==='si_no');
+  const eib=(d.resp_inicio==='tarde')+(d.resp_ruido==='exhalar')+(d.resp_dura==='largo')+(d.inhalador==='si_ayuda');
+  if(eilo>=2)f.push(['warn','Patrón compatible con EILO: referir a evaluación laríngea']);
+  else if(eib>=2)f.push(['warn','Patrón compatible con broncoespasmo: confirmar con prueba objetiva']);
+  else if(rs.some(x=>['disnea','tos','garganta'].includes(x)))f.push(['warn','Síntomas respiratorios al esfuerzo']);
+  if(disc==='running'&&d.cadencia&&+d.cadencia<170)f.push(['','Cadencia < 170']);
+  if(d.fc_max_origen==='formula'||d.fc_max_origen==='nose')f.push(['','FCmáx no medida']);
+  if(d.sensor==='muneca')f.push(['','FC óptica']);
+  if(disc==='futbol'&&(d.deporte_eq==='futbol'||d.deporte_eq==='futsal'||(!d.deporte_eq&&d.posicion))&&d.nordic==='no'&&d.fifa11!=='si')f.push(['warn','Sin nórdico ni FIFA 11+']);
+  if(disc==='futbol'&&Array.isArray(d.molestias_eq)&&d.molestias_eq.some(x=>x!=='nada'))f.push(['warn','Molestias: '+d.molestias_eq.filter(x=>x!=='nada').map(x=>lab(disc,'molestias_eq',x)).join(', ')]);
+  if(disc==='raqueta'&&Array.isArray(d.molestias_r)&&d.molestias_r.some(x=>x!=='nada'))f.push(['warn','Molestias: '+d.molestias_r.filter(x=>x!=='nada').map(x=>lab(disc,'molestias_r',x)).join(', ')]);
+  const last=checkins[0]; if(last&&+last.d.dolor>=4)f.push(['warn',`Check-in: dolor ${last.d.dolor}/10`]);
+  return f;
+}
+const has=(arr,v)=>Array.isArray(arr)&&arr.includes(v);
+const any=arr=>Array.isArray(arr)&&arr.some(x=>x!=='nada');
+function rehabFlags(d,checkins){
+  const f=[], L=(id,arr)=>arr.filter(x=>x!=='nada').map(x=>lab('rehab',id,x)).join(', ');
+  if(any(d.urgente))f.push(['warn','URGENTE: '+L('urgente',d.urgente)+' · contactar hoy']);
+  if(has(d.meds,'betabloq'))f.push(['warn','Betabloqueante: no dosificar por FC; usar Borg y disnea']);
+  if(d.oxigeno&&d.oxigeno!=='no')f.push(['',`Oxígeno ${lab('rehab','oxigeno',d.oxigeno).toLowerCase()}${d.o2_lpm?' · '+d.o2_lpm+' L/min':''}: mismo flujo en la caminata`]);
+  const sat=parseFloat(d.spo2_casa); if(sat&&sat<=85)f.push(['warn','SpO₂ en reposo ≤ 85 %: caminata solo con oxígeno (ERS/ATS)']); else if(sat&&sat<=88)f.push(['','SpO₂ en reposo '+sat+' %']);
+  if(+d.pas_casa>200||+d.pad_casa>110)f.push(['warn','PA > 200/110: contraindicación relativa para pruebas de esfuerzo (SEC, en López Chicharro; ERS/ATS usa ≥ 200/120)']);
+  if(any(d.imt_prec))f.push(['warn','Precaución IMT: '+L('imt_prec',d.imt_prec)]);
+  if(['edema','ortopnea','peso_rapido'].some(x=>has(d.sintomas,x)))f.push(['warn','Signos de congestión: '+L('sintomas',(d.sintomas||[]).filter(x=>['edema','ortopnea','peso_rapido'].includes(x)))]);
+  if(has(d.sintomas,'pecho_esf')||has(d.sintomas,'mareo'))f.push(['warn','Dolor torácico o mareo al esfuerzo: pedir valoración médica antes de la caminata']);
+  if(+d.hosp_12m>=1)f.push(['',`${d.hosp_12m} hospitalización(es) en 12 meses`]);
+  if(+d.exacerb_12m>=2)f.push(['warn',`${d.exacerb_12m} crisis en 12 meses`]);
+  if(+d.caidas_12m>=1)f.push(['warn',`${d.caidas_12m} caída(s) en 12 meses: cuidado en la caminata`]);
+  if(has(d.condicion,'neuromusc')||has(d.sintomas,'tos_debil')||has(d.sintomas,'atragant'))f.push(['','Medir flujo pico de tos (PCF)']);
+  if(d.informe==='no')f.push(['','Sin informe médico reciente']);
+  if(has(d.condicion,'ic'))f.push(['warn','Insuficiencia cardíaca: pedir informe cardiológico y prueba de esfuerzo reciente; la FC objetivo sale de esa prueba, no de 220 − edad (Powers)']);
+  if(has(d.condicion,'asma'))f.push(['','Asma: calentar dentro de los 60 min previos e iniciar con intervalos cortos (< 5 min) a intensidad baja-moderada (Powers)']);
+  const last=checkins[0]; if(last){const x=last.d;
+    if(any(x.urgente))f.push(['warn','Seguimiento: señales de urgencia marcadas']);
+    else if(['color','fiebre','mas_tos'].some(k=>has(x.cambios,k)))f.push(['warn','Seguimiento: posible exacerbación ('+L('cambios',(x.cambios||[]).filter(k=>['color','fiebre','mas_tos'].includes(k)))+')']);
+    if(has(x.cambios,'pecho')||has(x.cambios,'mareo'))f.push(['warn','Seguimiento: dolor torácico o mareo']);}
+  return f;
+}
+/* Enright 1994 (≥ 65 años; peso en libras), citado por McConnell */
+function mipPred(age,kg,sexo){if(!(age>=65)||!kg)return null;const lb=kg*2.2046;return sexo==='f'?{mip:96-0.805*age+0.133*lb,lln:32,mep:219-2.12*age+0.344*lb,llnE:52}:{mip:153-1.27*age+0.131*lb,lln:41,mep:347-2.95*age+0.25*lb,llnE:71}}
+function goldOf(ev){let r=parseFloat(ev.fev1fvc),p=parseFloat(ev.fev1pct);if(!r||!p)return null;if(r>1)r=r/100;if(r>=0.70)return 'sin obstrucción (FEV₁/FVC ≥ 0,70)';return 'GOLD '+(p>=80?'1 · leve':p>=50?'2 · moderada':p>=30?'3 · grave':'4 · muy grave')}
+function rehabKv(d,ing,ev){
+  const pr=mipPred(+d.edad,+d.peso,d.sexo), pim=+ev.pim, pem=+ev.pem;
+  const sm=+ev.sm6_dist, prev=+ev.sm6_prev;
+  return [['Edad · sexo',[d.edad,lab('rehab','sexo',d.sexo)].filter(Boolean).join(' · ')||'—'],
+    ['Llena',d.llena==='familiar'?('Cuidador: '+(d.cuidador||'—')):'Paciente'],
+    ['Disnea mMRC',d.mmrc!==undefined&&d.mmrc!==''?d.mmrc+'/4':'—'],
+    ['SpO₂ casa · consulta',`${d.spo2_casa||'—'} · ${ev.spo2||'—'} %`],
+    ['PA consulta',ev.pas?`${ev.pas}/${ev.pad||'—'}`:'—'],
+    ['Oxígeno',d.oxigeno&&d.oxigeno!=='no'?`${lab('rehab','oxigeno',d.oxigeno)}${d.o2_lpm?' · '+d.o2_lpm+' L/min':''}`:'No'],
+    ['PIM · PEM',(pim||pem)?`${pim||'—'} · ${pem||'—'} cmH₂O`+(pr&&pim?` · ${Math.round(pim/pr.mip*100)} % pred.`:''):'—'],
+    ['Caminata 6 min',sm?`${sm} m${sm<350&&has(d.condicion,'epoc')?' · < 350 m (peor pronóstico en EPOC)':''}`+(prev?` · Δ ${sm-prev>0?'+':''}${sm-prev} m ${Math.abs(sm-prev)>=30?'(≥ DMI 30 m)':'(< DMI)'}`:''):'—'],
+    ['SpO₂ mín · Borg',ev.sm6_spo2min?`${ev.sm6_spo2min} % · disnea ${ev.sm6_borg_d6||'—'}/10`:'—'],
+    ['PCF',ev.pcf?`${ev.pcf} L/min ${+ev.pcf<160?'· tos ineficaz':+ev.pcf<270?'· riesgo':''}`:'—'],
+    ['Espirometría',ev.fev1?`FEV₁ ${ev.fev1} L${ev.fev1pct?' ('+ev.fev1pct+' %)':''} · FEV₁/FVC ${ev.fev1fvc||'—'}`:'—'],
+    ['Clasificación GOLD',goldOf(ev)||'—'],
+    ['Decisión',ev.decision?{apto:'Apto para el programa',autorizacion:'Requiere autorización médica',derivar:'Derivar'}[ev.decision]:'—'],
+    ['ISR assessment',(ing&&ing.a&&ing.a.scores)?`${ing.a.scores.total}/45 · ${ing.a.nivel||''}`:'—']];
+}
+function kvOf(disc,d,ing,auto,ev){
+  if(disc==='rehab')return rehabKv(d,ing,ev);
+  const base=[['Edad · sexo',[d.edad,lab(disc,'sexo',d.sexo)].filter(Boolean).join(' · ')||'—'],
+    ['Objetivo',[lab(disc,'meta',d.meta),d.fecha_carrera?fmtDate(d.fecha_carrera):''].filter(Boolean).join(' · ')||'—']];
+  const peso=parseFloat(d.peso), out=[...base];
+  if(disc==='running'){const km=avgKm(d),rg=riegel(d);out.push(['Km/sem (4 sem)',km!=null?dec(km.toFixed(1)):'—'],['Exp. Riegel',rg?`${dec(rg.k.toFixed(3))} · ${rg.cls}`:'—'],['Cadencia',d.cadencia||'—'])}
+  if(disc==='ciclismo'){const h=avgOf(d,['h1','h2','h3','h4']),ftp=parseFloat(d.ftp);const wkg=ftp&&peso?ftp/peso:null;
+    out.push(['Horas/sem',h!=null?dec(h.toFixed(1)):'—'],['FTP',ftp?`${ftp} W`+(wkg?` · ${dec(wkg.toFixed(2))} W/kg`:''):'—'],['Nivel FTP',wkg?ftpClass(wkg,d.sexo):'—'],
+      ['5 s · 1′ · 5′',[d.p5s,d.p1m,d.p5m].some(Boolean)?[d.p5s,d.p1m,d.p5m].map(x=>x||'—').join(' · ')+' W':'—'])}
+  if(disc==='natacion'){const m=avgOf(d,['mt1','mt2','mt3','mt4']),t=parseT(d.n1000);out.push(['Metros/sem',m!=null?Math.round(m):'—'],['T-time /100 m',t?fmtSec(t/10):'—'],['10×100 @1:30',lab(disc,'base130',d.base130)||'—'])}
+  if(disc==='triatlon'){const t=parseT(d.n1000);out.push(['Horas/sem (N·B·C)',[d.h_swim,d.h_bike,d.h_run].map(x=>x||'—').join(' · ')],['Limitante',lab(disc,'limitante',d.limitante)||'—'],['T-time · FTP',`${t?fmtSec(t/10):'—'} · ${d.ftp?d.ftp+' W':'—'}`])}
+  if(disc==='futbol')out.push(['Partidos · min',`${d.partidos||'—'} · ${d.minutos||'—'}`],['Sprint 10 · 30 m',`${d.sprint10||'—'} · ${d.sprint30||'—'} s`],['Salto · test T',`${d.cmj?d.cmj+' cm':'—'} · ${d.ttest?d.ttest+' s':'—'}`],['Yo-Yo IR1',d.yoyo||'—']);
+  if(disc==='raqueta')out.push(['Deporte · nivel',[lab(disc,'deporte_r',d.deporte_r),lab(disc,'nivel_r',d.nivel_r)].filter(Boolean).join(' · ')||'—'],['Horas de juego',d.h_juego||'—']);
+  if(disc==='fuerza'){const L=[['lf_sq','Sent.'],['lf_dl','P. muerto'],['lf_bp','Banca'],['lf_ohp','Militar']].map(([k,l])=>{const v=e1rm(d[k]);return v?`${l} ${v}`:null}).filter(Boolean);
+    out.push(['1RM estimado (kg)',L.length?L.join(' · '):'—'],['Progresa',lab(disc,'progreso',d.progreso)||'—'],['RIR',lab(disc,'rir',d.rir)||'—'])}
+  out.push(['FC rep · máx',(d.fc_reposo||d.fc_max)?`${d.fc_reposo||'—'} · ${d.fc_max||'—'}`:'—'],['BOLT',d.bolt?d.bolt+' s':'—'],
+    ['ISR assessment',(ing&&ing.a&&ing.a.scores)?`${ing.a.scores.total}/45 · ${ing.a.nivel||''}`:'—'],
+    ['PIM · PEM',(ev.pim||ev.pem)?`${ev.pim||'—'} · ${ev.pem||'—'} cmH₂O`:'—'],
+    ['Movilidad (fallas)',auto?(()=>{const x=selfFails(auto.d);return x.length?x.join(', '):'ninguna'})():'—']);
+  return out;
+}
+const fmtSec=s=>{s=Math.round(s);return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`};
+const SELF=[['t1','Tobillo','si'],['t2','Hallux','si'],['t3','Cadera','no'],['t4','Isquios','si'],['t5','Ctrl. hallux','si'],['h2i','RI hombro','si'],['h2e','RE hombro','si']];
+function selfFails(d){const out=[];SELF.forEach(([k,l,pass])=>['D','I'].forEach(s=>{const v=d[`${k}_${s}`];if(v&&v!==pass)out.push(`${l} ${s}`)}));if(d.t6==='si')out.push('Postura');if(d.h1&&d.h1!=='bien')out.push('Elevación brazos');if(d.h3==='no')out.push('Rotación torácica');return out}
+
+
+function rehabCk(key,cks){
+  if(!cks.length)return '';
+  return `<details data-dk="${esc(key)}:ck"><summary>Seguimientos <span class="d">${cks.length}</span></summary><div class="tbl"><table><thead><tr><th>Semana</th><th>Sesiones</th><th>IMT</th><th>Borg disnea</th><th>Cansancio</th><th>SpO₂</th><th>Peso</th><th>Rescate</th><th>Cambios</th></tr></thead><tbody>${
+    cks.map(c=>{const x=c.d;return `<tr><td>${esc(fmtDate(x.semana))}</td><td>${esc(x.ses_hechas??'—')}/${esc(x.ses_plan??'—')}</td><td>${esc(x.imt_ses??'—')}</td><td>${esc(x.borg_disnea??'—')}</td><td>${esc(x.fatiga||'—')}</td><td>${esc(x.spo2||'—')}</td><td>${esc(x.peso||'—')}</td><td>${esc(x.rescate_veces??'—')}</td><td>${esc(Array.isArray(x.cambios)?x.cambios.filter(k=>k!=='nada').map(k=>lab('rehab','cambios',k)||k).join(', '):'—')}</td></tr>`}).join('')}</tbody></table></div></details>`;
+}
+function rehabEval(key,ev,d){
+  const pr=mipPred(+d.edad,+d.peso,d.sexo);
+  return `<details data-dk="${esc(key)}:ev"><summary>Tu evaluación clínica</summary><div class="eval" data-eval="${esc(key)}">
+    <p class="eyebrow">Signos vitales en reposo</p>
+    <div class="row">${evNum('pas','PA sistólica','mmHg',ev)}${evNum('pad','PA diastólica','mmHg',ev)}${evNum('fc','FC','lpm',ev)}${evNum('fr','FR','rpm',ev)}${evNum('spo2','SpO₂','%',ev)}${evNum('o2_eval','Con O₂','L/min',ev)}</div>
+    <div class="row">${evSel('ausc','Auscultación',[['normal','Normal'],['sibilancias','Sibilancias'],['crepitantes','Crepitantes'],['roncus','Roncus'],['mv_dism','Murmullo disminuido'],['mixto','Mixto']],ev)}<div class="fld"><label>Detalle</label><input type="text" data-ev="ausc_txt" value="${esc(ev.ausc_txt||'')}"></div></div>
+    <p class="eyebrow">Fuerza respiratoria</p>
+    <p class="help">Al menos 5 maniobras; mejor de 3 que no difieran más de 20 %; calentamiento previo de 2 × 30 respiraciones al 40 %. PIM < 60 cmH₂O: mayor margen de mejora con IMT (McConnell).${pr?` Predicho (Enright, ≥ 65 años): PIM ${Math.round(pr.mip)} (LIN ${Math.round(pr.mip-pr.lln)}) · PEM ${Math.round(pr.mep)} (LIN ${Math.round(pr.mep-pr.llnE)}) cmH₂O.`:''}</p>
+    <div class="row">${evNum('pim','PIM','cmH₂O',ev)}${evNum('pem','PEM','cmH₂O',ev)}${evNum('pcf','Flujo pico de tos','L/min',ev)}</div>
+    <p class="eyebrow">Caminata de 6 minutos</p>
+    <p class="help">Pasillo ≥ 30 m; 15 min de reposo antes; frases estándar cada minuto; mismo flujo de O₂ en todas las pruebas. Detener si SpO₂ < 80 %, dolor torácico, disnea intolerable, calambres, tambaleo, sudoración o palidez. No hacerla con angina inestable, IC descompensada, asma no controlada o SpO₂ en reposo ≤ 85 % sin oxígeno. Diferencia mínima importante ≈ 30 m (ERS/ATS 2014).</p>
+    <div class="row">${evNum('sm6_dist','Distancia','m',ev)}${evNum('sm6_spo2min','SpO₂ mínima','%',ev)}${evNum('sm6_fcmax','FC máxima','lpm',ev)}${evNum('sm6_paradas','Paradas','',ev)}</div>
+    <div class="row">${evNum('sm6_borg_d0','Borg disnea inicio','/10',ev)}${evNum('sm6_borg_d6','Borg disnea final','/10',ev)}${evNum('sm6_borg_f6','Borg fatiga final','/10',ev)}${evNum('sm6_o2','O₂ durante','L/min',ev)}${evNum('sm6_pasillo','Pasillo','m',ev)}</div>
+    <p class="eyebrow">Espirometría (si se hizo)</p>
+    <p class="help">EPOC si FEV₁/FVC < 0,70; gravedad GOLD por FEV₁ % del predicho post-broncodilatador: ≥ 80 leve, 50–79 moderada, 30–49 grave, < 30 muy grave (Powers, citando GOLD).</p>
+    <div class="row">${evNum('fev1','FEV₁','L',ev)}${evNum('fvc','FVC','L',ev)}${evNum('fev1fvc','FEV₁/FVC','',ev)}${evNum('fev1pct','FEV₁','% pred.',ev)}</div>
+    <div class="row">${evSel('decision','Decisión',[['apto','Apto para el programa'],['autorizacion','Requiere autorización médica'],['derivar','Derivar']],ev)}</div>
+    <div class="fld"><label for="ev-${esc(key)}-notas">Notas</label><textarea id="ev-${esc(key)}-notas" data-ev="notas">${esc(ev.notas||'')}</textarea></div>
+    <div class="actions"><button class="btn vio" type="button" data-evsave="${esc(key)}">Guardar evaluación</button></div><p class="status" data-evst></p>
+  </div></details>`;
+}
+function evNum(k,l,u,ev){return `<div class="fld"><label>${esc(l)}</label><div class="unit"><input type="number" inputmode="decimal" data-ev="${k}" value="${esc(ev[k]??'')}"><span>${esc(u)}</span></div></div>`}
+function evSel(k,l,o,ev){return `<div class="fld"><label>${esc(l)}</label><select data-ev="${k}"><option value="">—</option>${o.map(([v,t])=>`<option value="${v}" ${ev[k]===v?'selected':''}>${esc(t)}</option>`).join('')}</select></div>`}
+
+async function inflate(b64){
+  const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+  const buf=await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer();
+  return new TextDecoder().decode(buf);
+}
+async function parseCodes(text){
+  const out=[]; const re=/#RQ([12])#([A-Za-z0-9+/=\s]+?)#FIN#/g; let m;
+  while((m=re.exec(text))){const code=m[2].replace(/\s+/g,'');try{const json=m[1]==='2'?await inflate(code):b64d(code);const p=JSON.parse(json);if(p&&p.t&&p.d&&['ingreso','autoeval','checkin'].includes(p.t))out.push({p,code})}catch(e){}}
+  return out;
+}
+function aLines(a){if(!a||!a.scores)return [];const s=a.scores;return ['— Evaluación respiratoria (assessment) —',`Fecha: ${fmtIso(a.fecha)}`,`ISR: ${s.total}/45 · ${a.nivel||''}`,`Mente ${s.mind}/15 · Cuerpo ${s.body}/15 · Deporte ${s.sport}/15`,a.bolt?`BOLT (rango): ${a.bolt}`:'',a.imt?`Fase IMT sugerida: ${a.imt}`:''].filter(Boolean)}
+function recFrom(p,origen){
+  const nombre=String(p.d.nombre||'').trim();
+  return {t:p.t,s:(ING[p.s]||p.s==='rehab')?p.s:'running',nombre,key:keyOf(nombre),creado:p.f||new Date().toISOString(),origen,d:p.d,a:p.a||null};
+}
+
+/* ===== Panel web de Rafael (Supabase) ===== */
+const SB_URL='https://lgtjlvfmmqaknrdfvzob.supabase.co', SB_KEY='sb_publishable_ACr3-wNo1t7GlhX803qoRA_7q_8gTQE';
+const AUTH_LS='rq-panel-auth';
+let TOK=null; try{TOK=JSON.parse(localStorage.getItem(AUTH_LS)||'null')}catch(e){}
+let ASSESS_ROWS=[], FILTRO='todos', BUSCA='', loading=false, lastLoad=null;
+const ESTADO_TXT={borrador:'Sin terminar',completo:'Completa, sin enviar',enviado:'Enviada'};
+const ESTADO_CLS={borrador:'warn',completo:'acc',enviado:'ok'};
+
+function setTok(t){TOK=t;try{t?localStorage.setItem(AUTH_LS,JSON.stringify(t)):localStorage.removeItem(AUTH_LS)}catch(e){}}
+async function authReq(grant,body){
+  const r=await fetch(`${SB_URL}/auth/v1/token?grant_type=${grant}`,{method:'POST',headers:{apikey:SB_KEY,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(j.error_description||j.msg||j.message||('HTTP '+r.status));
+  setTok({access_token:j.access_token,refresh_token:j.refresh_token,expires_at:j.expires_at||(Math.floor(Date.now()/1000)+(j.expires_in||3600)),email:(j.user&&j.user.email)||body.email||(TOK&&TOK.email)});
+}
+async function fresh(){
+  if(!TOK)throw new Error('sin sesión');
+  if(TOK.expires_at-60<Date.now()/1000)await authReq('refresh_token',{refresh_token:TOK.refresh_token});
+}
+async function api(path,opt={}){
+  await fresh();
+  const go=()=>fetch(SB_URL+path,Object.assign({},opt,{headers:Object.assign({apikey:SB_KEY,Authorization:'Bearer '+TOK.access_token,'Content-Type':'application/json'},opt.headers||{})}));
+  let r=await go();
+  if(r.status===401){await authReq('refresh_token',{refresh_token:TOK.refresh_token});r=await go()}
+  if(!r.ok){const t=await r.text().catch(()=>'');throw new Error(`HTTP ${r.status} ${t.slice(0,140)}`)}
+  return r.status===204?null:r.json().catch(()=>null);
+}
+const validDisc=s=>(ING[s]||s==='rehab')?s:'running';
+function rowToRec(r){
+  const p=r.datos||{};
+  const nombre=String(r.nombre||(p.d&&p.d.nombre)||'').trim();
+  const key=nombre?keyOf(nombre):'anon-'+String(r.session_id).slice(0,8);
+  const base={id:r.session_id,nombre,key,creado:r.actualizado||r.creado,inicio:r.creado,estado:r.estado,contacto:r.contacto||'',ult:p.ult||null,pct:p.pct};
+  if(r.tipo==='assessment')return Object.assign(base,{t:'assessment',s:null,d:{},resp:p.respondidas||0,a:p.scores?{fecha:r.actualizado,scores:p.scores,nivel:p.nivel,bolt:p.bolt,mbt:p.mbt,imt:p.imt,perfil:p.perfil}:null});
+  return Object.assign(base,{t:r.modulo||p.t,s:validDisc(r.disciplina||p.s),d:p.d||{},a:p.a||null});
+}
+async function loadAll(){
+  if(loading)return; loading=true; setMsg('Cargando…');
+  try{
+    const [rows,evs]=await Promise.all([
+      api('/rest/v1/registros?select=*&order=actualizado.desc&limit=2000'),
+      api('/rest/v1/evaluaciones?select=*&order=creado.asc&limit=5000')]);
+    FICHAS=(rows||[]).map(rowToRec);
+    EVALS={}; (evs||[]).forEach(e=>{EVALS[e.persona]=Object.assign({},e.datos||{},{_id:e.id})});
+    lastLoad=new Date(); setMsg('');
+  }catch(e){
+    if(/sin sesión|refresh|invalid|JWT|401/i.test(e.message)){setTok(null);return showLogin('Tu sesión expiró. Entra de nuevo.')}
+    setMsg('No pude cargar los datos: '+e.message);
+  }finally{loading=false}
+  renderPanel();
+}
+function setMsg(t){const el=$('#loadst');if(el)el.textContent=t}
+
+/* ---------- vista ---------- */
+const waOf=c=>{const m=String(c||'').match(/\+?\d[\d\s().-]{6,}\d/);if(!m)return null;let n=m[0].replace(/\D/g,'');if(n.startsWith('0'))n='58'+n.slice(1);if(n.length===10&&n.startsWith('4'))n='58'+n;return n};
+const emailOf=c=>{const m=String(c||'').match(/[^\s@·]+@[^\s@·]+\.[^\s@·]+/);return m?m[0]:null};
+function groupsOf(){
+  const groups={};
+  FICHAS.forEach(r=>{const g=(groups[r.key]=groups[r.key]||{key:r.key,name:r.nombre,recs:[]});g.recs.push(r);if(!g.name&&r.nombre)g.name=r.nombre});
+  Object.values(groups).forEach(g=>{
+    g.recs.sort((a,b)=>(b.creado||'').localeCompare(a.creado||''));
+    g.last=g.recs[0].creado||'';
+    g.contacto=(g.recs.find(r=>r.contacto)||{}).contacto||'';
+    g.estado=g.recs.some(r=>r.estado==='enviado')?'enviado':g.recs.some(r=>r.estado==='completo')?'completo':'borrador';
+    g.soloAssess=g.recs.every(r=>r.t==='assessment');
+    g.rehab=g.recs.some(r=>r.s==='rehab');
+  });
+  return Object.values(groups).sort((a,b)=>b.last.localeCompare(a.last));
+}
+const pend=r=>r.estado==='borrador'||(r.t!=='assessment'&&r.estado==='completo');
+function pasaFiltro(g){
+  if(BUSCA){const q=keyOf(BUSCA);if(!(g.key.includes(q)||keyOf(g.contacto).includes(q)))return false}
+  if(FILTRO==='todos')return true;
+  if(FILTRO==='borrador')return g.recs.some(pend);
+  if(FILTRO==='assessment')return g.soloAssess;
+  if(FILTRO==='pacientes')return g.rehab;
+  if(FILTRO==='deportistas')return !g.soloAssess&&!g.rehab;
+  return true;
+}
+function renderPanel(){
+  const el=$('#mod-panel'); if(!el)return;
+  const all=groupsOf(), list=all.filter(pasaFiltro);
+  const cnt={todos:all.length,borrador:all.filter(g=>g.recs.some(pend)).length,assessment:all.filter(g=>g.soloAssess).length,pacientes:all.filter(g=>g.rehab).length,deportistas:all.filter(g=>!g.soloAssess&&!g.rehab).length};
+  const F=[['todos','Todos'],['borrador','Sin terminar o sin enviar'],['deportistas','Deportistas'],['pacientes','Pacientes'],['assessment','Solo assessment']];
+  const open=new Set($$('details[open]',el).map(x=>x.dataset.dk)); const impv=($('#imp',el)||{}).value||'';
+  const evDraft={}; $$('[data-eval]',el).forEach(b=>{evDraft[b.dataset.eval]={};$$('[data-ev]',b).forEach(i=>evDraft[b.dataset.eval][i.dataset.ev]=i.value)});
+  const focusSearch=document.activeElement&&document.activeElement.id==='busca';
+  el.innerHTML=`
+   <div class="tools">
+     <div class="filters" role="group" aria-label="Filtrar">${F.map(([v,l])=>`<button type="button" class="tab" data-filtro="${v}" aria-selected="${FILTRO===v}">${esc(l)}<span class="pc">${cnt[v]}</span></button>`).join('')}</div>
+     <div class="row2"><input type="search" id="busca" placeholder="Buscar por nombre, WhatsApp o correo" value="${esc(BUSCA)}"><button class="btn ghost" type="button" id="recargar">Actualizar</button></div>
+     <p class="status" id="loadst" role="status">${lastLoad?'Actualizado '+lastLoad.toLocaleTimeString('es-VE',{hour:'2-digit',minute:'2-digit'}):''}</p>
+   </div>
+   <div class="runners">${list.length?list.map(personHtml).join(''):`<div class="empty">${all.length?'Nadie coincide con este filtro.':'Todavía no hay registros. Cuando alguien empiece la ficha o el assessment, aparecerá aquí aunque no lo termine.'}</div>`}</div>
+   <details class="import" data-dk="import"><summary>Importar una ficha enviada por WhatsApp</summary>
+     <p class="help">Solo hace falta si alguien te mandó el código #RQ…#FIN# porque no pudo enviarla desde la página.</p>
+     <textarea id="imp" placeholder="Pega el mensaje completo, con el código #RQ…#FIN# al final. Puedes pegar varios a la vez."></textarea>
+     <div class="actions"><button class="btn vio" type="button" id="impbtn">Importar</button></div>
+     <p class="status" id="impst" role="status">${esc(importMsg)}</p>
+   </details>`;
+  $$('details',el).forEach(x=>{if(open.has(x.dataset.dk))x.open=true});
+  const imp=$('#imp',el); if(imp)imp.value=impv;
+  $$('[data-eval]',el).forEach(b=>{const dr=evDraft[b.dataset.eval];if(dr)$$('[data-ev]',b).forEach(i=>{if(dr[i.dataset.ev]!==undefined)i.value=dr[i.dataset.ev]})});
+  if(focusSearch){const b=$('#busca',el);b.focus();b.setSelectionRange(b.value.length,b.value.length)}
+}
+function recTitle(r){
+  if(r.t==='assessment')return 'Assessment respiratorio';
+  const sch=schemaOf(r.s).sch; return `${sch[r.t]?sch[r.t].title:r.t} · ${DISC_LABEL[r.s]||'Running'}`;
+}
+function estadoChip(r){
+  if(r.t==='assessment'&&r.estado!=='borrador')return `<span class="chip ok">Completado</span>`;
+  let t=ESTADO_TXT[r.estado]||r.estado;
+  if(r.estado!=='enviado'){
+    if(r.t==='assessment'&&!r.a)t+=` · ${r.resp||0}/15 respuestas`;
+    else if(r.pct!=null&&r.t!=='assessment')t+=` · ${r.pct}%`;
+  }
+  return `<span class="chip ${ESTADO_CLS[r.estado]||''}">${esc(t)}</span>`;
+}
+function recDetailsHtml(g){
+  return g.recs.map(r=>{
+    const body=r.t==='assessment'
+      ?(r.a?aLines(r.a).concat(r.a.perfil?[`Perfil: ${r.a.perfil}`]:[]).join('\n'):`Se quedó en: ${r.ult||'—'} (${r.resp||0} de 15 respondidas).`)
+      :summaryLines(r.t,r.d,schemaOf(r.s).sch).concat(aLines(r.a)).join('\n')+(r.estado!=='enviado'&&r.ult?`\nÚltima respuesta: ${r.ult}`:'');
+    return `<details data-dk="${esc(r.id)}"><summary>${esc(recTitle(r))} <span class="d">${esc(fmtIso(r.creado))}</span> ${estadoChip(r)}</summary>
+      <pre class="lines">${esc(body||'(sin respuestas todavía)')}</pre>
+      ${confirmDel===r.id?`<div class="confirm">¿Borrar este registro? No se puede deshacer. <button class="btn danger" type="button" data-del-yes="${esc(r.id)}">Sí, borrar</button><button class="btn ghost" type="button" data-del-no>Cancelar</button></div>`
+        :`<div class="actions" style="margin-bottom:14px"><button class="btn ghost" type="button" data-del="${esc(r.id)}">Borrar este registro</button></div>`}
+    </details>`}).join('');
+}
+function contactHtml(g){
+  if(!g.contacto)return '<span class="help">Sin contacto todavía</span>';
+  const wa=waOf(g.contacto), em=emailOf(g.contacto);
+  return `<span class="contact">${esc(g.contacto)}</span>${wa?` <a class="btn mini wa" target="_blank" rel="noopener" href="https://wa.me/${wa}">WhatsApp</a>`:''}${em?` <a class="btn mini ghost" href="mailto:${esc(em)}">Correo</a>`:''}`;
+}
+function personHtml(g){
+  const fichaRecs=g.recs.filter(r=>r.t!=='assessment');
+  const assess=g.recs.filter(r=>r.t==='assessment');
+  const lastA=assess.find(r=>r.a);
+  if(!fichaRecs.length){
+    return `<article class="runner"><div class="top"><div class="name"><h3>${esc(g.name||'Sin nombre')}</h3><span class="meta"><span class="chip">Assessment</span>${estadoChip(assess[0])}</span></div>
+      <p class="help">${contactHtml(g)}</p>
+      ${lastA?`<p class="help" style="color:var(--ink)">ISR ${lastA.a.scores.total}/45 · ${esc(lastA.a.nivel||'')} · Mente ${lastA.a.scores.mind} · Cuerpo ${lastA.a.scores.body} · Deporte ${lastA.a.scores.sport}${lastA.a.imt?` · Fase IMT: ${esc(lastA.a.imt)}`:''}</p>`:`<p class="help">No terminó: ${esc(assess[0].ult||'—')}.</p>`}
+      </div><div class="body">${recDetailsHtml(g)}</div></article>`;
+  }
+  const ingR=fichaRecs.find(r=>r.t==='ingreso');
+  const extra=`<p class="help">${contactHtml(g)}</p>${ingR&&ingR.estado!=='enviado'?`<p class="help"><span class="chip warn">Ingreso ${esc((ESTADO_TXT[ingR.estado]||'').toLowerCase())}${ingR.pct!=null?' · '+ingR.pct+'%':''}</span>${ingR.ult?` Se quedó en: ${esc(ingR.ult)}`:''}</p>`:''}${lastA&&!fichaRecs.some(r=>r.a)?`<p class="help">Assessment: ISR ${lastA.a.scores.total}/45 · ${esc(lastA.a.nivel||'')}</p>`:''}`;
+  const by=t=>fichaRecs.filter(r=>r.t===t).sort((a,b)=>(b.creado||'').localeCompare(a.creado||''));
+  const ing=by('ingreso')[0], auto=by('autoeval')[0], cks=by('checkin');
+  const disc=(ing&&ing.s)||(fichaRecs[0]&&fichaRecs[0].s)||'running';
+  const d=ing?ing.d:{}; const ev=EVALS[g.key]||{};
+  const prof=ing?profileOf(disc,d):null;
+  const fl=ing?flagsOf(disc,ing,cks):(cks[0]&&+cks[0].d.dolor>=4?[['warn',`Check-in: dolor ${cks[0].d.dolor}/10`]]:[]);
+  const kv=kvOf(disc,d,ing,auto,ev);
+  const ckTable=disc==='rehab'?rehabCk(g.key,cks):cks.length?`<details data-dk="${esc(g.key)}:ck"><summary>Check-ins <span class="d">${cks.length}</span></summary><p class="help">Carga interna = esfuerzo × minutos (sRPE). Mira la tendencia junto con sueño, cansancio y dolor (Gabbett 2017).</p><div class="tbl"><table><thead><tr><th>Semana</th><th>Sesiones</th><th>Min</th><th>Esf.</th><th>Carga</th><th>Sueño</th><th>Cans.</th><th>Agujetas</th><th>Estrés</th><th>Dolor</th></tr></thead><tbody>${
+     cks.map(c=>{const x=c.d,load=(+x.rpe&&+x.min_total)?Math.round(x.rpe*x.min_total):'—';
+       return `<tr><td>${esc(fmtDate(x.semana))}</td><td>${esc(x.ses_hechas??'—')}/${esc(x.ses_plan??'—')}</td><td>${esc(x.min_total||'—')}</td><td>${esc(x.rpe||'—')}</td><td>${load}</td><td>${x.sueno?esc(dec(x.sueno))+' h':'—'}</td><td>${esc(x.fatiga||'—')}</td><td>${esc(x.agujetas||'—')}</td><td>${esc(x.estres||'—')}</td><td>${esc(x.dolor??'—')}${x.dolor_zona?' · '+esc(x.dolor_zona):''}</td></tr>`}).join('')}</tbody></table></div></details>`:'';
+  const evalForm=disc==='rehab'?rehabEval(g.key,ev,d):`<details data-dk="${esc(g.key)}:ev"><summary>Tu evaluación presencial</summary><div class="eval" data-eval="${esc(g.key)}">
+      <p class="help">PIM/PEM: al menos 5 maniobras, mejor de 3 que no difieran más de 20 %; calentamiento previo de 2 × 30 respiraciones al 40 % de la mejor PIM inicial (McConnell, recuadro 6.3).</p>
+      <div class="row">${evNum('pim','PIM','cmH₂O',ev)}${evNum('pem','PEM','cmH₂O',ev)}${evNum('slD','Sentadilla 1 pierna D','/6',ev)}${evNum('slI','Sentadilla 1 pierna I','/6',ev)}</div>
+      <div class="row">${evSel('bil','Sentadilla bilateral',[['cadera','Dominante de cadera'],['rodilla','Dominante de rodilla']],ev)}${evSel('puente','Puente a una pierna',[['ok','Estable'],['cae','Cae o se desplaza la pelvis'],['isquio','Isquio o lumbar dominante']],ev)}</div>
+      <div class="fld"><label for="ev-${esc(g.key)}-notas">Notas</label><textarea id="ev-${esc(g.key)}-notas" data-ev="notas">${esc(ev.notas||'')}</textarea></div>
+      <div class="actions"><button class="btn vio" type="button" data-evsave="${esc(g.key)}">Guardar evaluación</button></div><p class="status" data-evst></p>
+    </div></details>`;
+  return `<article class="runner">
+    <div class="top"><div class="name"><h3>${esc(g.name||'Sin nombre')}</h3><span class="meta">${prof?`<span class="chip vio">${prof.code} · ${esc(prof.label)}</span>`:''}<span class="chip">${esc(DISC_LABEL[disc]||disc)}</span></span></div>
+      ${prof?`<p class="help" style="color:var(--ink)"><span class="eyebrow">Test sugerido</span><br>${esc(prof.test)} <span class="src">(${esc(prof.src)})</span>${prof.ergo?`<br><span class="eyebrow">Ergoespirometría</span> ${esc(ERGO_TXT[disc]||'')}`:''}</p>`:`<p class="help">Falta la ficha de ingreso.</p>`}
+      ${extra}${fl.length?`<div class="meta">${fl.map(([c,t])=>`<span class="chip ${c}">${esc(t)}</span>`).join('')}</div>`:''}
+      ${fl.some(([,t])=>/EILO|broncoespasmo/.test(t))?`<p class="help">Los síntomas por sí solos predicen mal el broncoespasmo; confirma con prueba objetiva antes de concluir (Dickinson y Hull).</p>`:''}
+    </div>
+    <dl class="kv" style="margin:0">${kv.map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
+    <div class="body">${evalForm}${ckTable}${recDetailsHtml(g)}</div>
+  </article>`;
+}
+
+/* ---------- acciones ---------- */
+document.addEventListener('click',async e=>{
+  const t=e.target.closest('button,[data-filtro]'); if(!t||!$('#mod-panel').contains(t))return;
+  if(t.dataset.filtro){FILTRO=t.dataset.filtro;renderPanel();return}
+  if(t.id==='recargar'){loadAll();return}
+  if(t.id==='impbtn'){
+    const txt=$('#imp').value, found=await parseCodes(txt);
+    if(!found.length){importMsg='No encontré ningún código #RQ…#FIN# en el texto. Pega el mensaje completo.';$('#impst').textContent=importMsg;return}
+    t.disabled=true; let ok=0;
+    for(const {p,code} of found){
+      const nombre=String(p.d.nombre||'').trim();
+      try{await api('/rest/v1/rpc/guardar_registro',{method:'POST',body:JSON.stringify({p_session:'importado-'+p.t+'-'+hash(code)+'-'+code.length,p_tipo:'ficha',p_modulo:p.t,p_disciplina:validDisc(p.s),p_nombre:nombre,p_contacto:String(p.d.contacto||''),p_estado:'enviado',p_datos:Object.assign({},p,{pct:null,ult:null})})});ok++}catch(err){}
+    }
+    importMsg=ok===found.length?`Importada${ok>1?'s':''} ${ok} ficha${ok>1?'s':''}.`:`Importadas ${ok} de ${found.length}. Vuelve a intentar con las que faltan.`;
+    $('#imp').value=''; t.disabled=false; await loadAll(); return;
+  }
+  if(t.dataset.del){confirmDel=t.dataset.del;renderPanel();return}
+  if(t.dataset.delNo!==undefined){confirmDel=null;renderPanel();return}
+  if(t.dataset.delYes){
+    try{await api('/rest/v1/registros?session_id=eq.'+encodeURIComponent(t.dataset.delYes),{method:'DELETE',headers:{Prefer:'return=minimal'}});FICHAS=FICHAS.filter(r=>r.id!==t.dataset.delYes)}catch(err){setMsg('No se pudo borrar: '+err.message)}
+    confirmDel=null; renderPanel(); return;
+  }
+  if(t.dataset.evsave){
+    const key=t.dataset.evsave, box=t.closest('[data-eval]'), data={};
+    $$('[data-ev]',box).forEach(i=>{if(i.value!=='')data[i.dataset.ev]=i.value});
+    data.actualizado=new Date().toISOString();
+    const old=EVALS[key]||{};
+    if(old.sm6_dist&&data.sm6_dist&&old.sm6_dist!==data.sm6_dist){data.sm6_prev=old.sm6_dist;data.sm6_prev_f=old.actualizado||''}
+    else if(old.sm6_prev){data.sm6_prev=old.sm6_prev;data.sm6_prev_f=old.sm6_prev_f||''}
+    const st=$('[data-evst]',box); t.disabled=true;
+    try{await api('/rest/v1/evaluaciones',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({persona:key,datos:data})});EVALS[key]=data;st.textContent='Evaluación guardada. Las anteriores quedan en el historial.';renderPanel()}
+    catch(err){st.textContent='No se pudo guardar: '+err.message}
+    t.disabled=false;
+  }
+});
+document.addEventListener('input',e=>{if(e.target.id==='busca'){BUSCA=e.target.value;renderPanel()}});
+
+/* ---------- inicio de sesión ---------- */
+function showLogin(msg){
+  $('#login').hidden=false; $('#app').hidden=true; $('#who').textContent='';
+  const m=$('#loginmsg'); m.textContent=msg||'';
+}
+async function showApp(){
+  $('#login').hidden=true; $('#app').hidden=false; $('#who').textContent=TOK&&TOK.email?TOK.email:'';
+  renderPanel(); await loadAll();
+}
+$('#login').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const email=$('#lemail').value.trim(), password=$('#lpass').value, b=$('#lbtn'), m=$('#loginmsg');
+  if(!email||!password){m.textContent='Escribe tu correo y tu contraseña.';return}
+  b.disabled=true; m.textContent='Entrando…';
+  try{await authReq('password',{email,password}); $('#lpass').value=''; await showApp()}
+  catch(err){m.textContent=/invalid/i.test(err.message)?'Correo o contraseña incorrectos.':'No pude entrar: '+err.message}
+  b.disabled=false;
+});
+$('#logout').addEventListener('click',()=>{setTok(null);FICHAS=[];EVALS={};showLogin('Sesión cerrada.')});
+setInterval(()=>{if(TOK&&!$('#app').hidden&&document.visibilityState==='visible')loadAll()},120000);
+document.addEventListener('visibilitychange',()=>{if(TOK&&!$('#app').hidden&&document.visibilityState==='visible'&&(!lastLoad||Date.now()-lastLoad>30000))loadAll()});
+TOK?showApp():showLogin('');
+
+})();
+</script>
+</body>
+</html>

@@ -136,6 +136,13 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
 .missing{color:var(--warn);font-size:14.5px}
 .out{min-height:220px;font:13px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap;background:var(--paper)}
 .status{font-size:14px;color:var(--teal);min-height:1.4em}
+.autosave{font-size:14px;color:var(--muted);margin:0;max-width:62ch}
+.bar .wrap{position:relative}
+#savest{display:block;font-size:12px;letter-spacing:.03em;color:var(--muted);text-align:right;min-height:1.2em;padding:2px 0 6px}
+#savest[data-s="err"]{color:var(--copper)}
+details.alt{border-top:1px solid var(--line);padding-top:12px}
+details.alt summary{cursor:pointer;font-size:14px;color:var(--muted)}
+details.alt[open] summary{margin-bottom:10px}
 footer.foot{padding-block:28px 48px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;font-weight:300}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -147,12 +154,13 @@ footer.foot{padding-block:28px 48px;border-top:1px solid var(--line);color:var(-
     <span class="eyebrow" id="hero-eyebrow">Optimización deportiva</span>
     <h1>Ficha personal · <em id="hero-disc">running</em></h1>
     <p id="hero-intro">Con esta ficha programo tu entrenamiento con datos reales. Tiene tres partes: el ingreso se llena una sola vez, la autoevaluación cuando tengas 15–20 minutos y un teléfono para grabarte, y el check-in cada domingo.</p>
+    <p class="autosave">Tus respuestas se guardan automáticamente mientras avanzas, de forma privada: solo Rafael puede verlas. Así no se pierde nada aunque cierres la página.</p>
     <fieldset class="discs"><legend>¿Para qué es tu ficha?</legend><div class="dopts" id="disc"></div></fieldset>
   </header>
 </div>
-<div class="bar"><div class="wrap"><nav class="tabs" role="tablist" id="tabs"></nav></div><div class="prog"><i id="progbar"></i></div></div>
+<div class="bar"><div class="wrap"><nav class="tabs" role="tablist" id="tabs"></nav><span id="savest" role="status" aria-live="polite"></span></div><div class="prog"><i id="progbar"></i></div></div>
 <main class="wrap" id="main"></main>
-<div class="wrap"><footer class="foot">Tus respuestas se guardan solo en este dispositivo mientras llenas la ficha. Me llegan cuando me las envías por WhatsApp.</footer></div>
+<div class="wrap"><footer class="foot">Tus respuestas se guardan en este dispositivo y en la base de datos privada de Terapia Respiratoria. Solo Rafael Quintana puede leerlas.</footer></div>
 <script>
 
 (()=>{
@@ -212,7 +220,7 @@ const S_RESP={t:'Respiración',note:'Si no sabes alguna respuesta, déjala en bl
 const S_ERGO={t:'Ergoespirometría',f:[
   seg('ergo','¿Te interesaría hacerte una ergoespirometría?',[['si','Sí'],['no','No por ahora'],['tengo','Ya tengo una']],{help:'Prueba de esfuerzo con análisis de gases, por referencia a laboratorio. Da tus umbrales reales.'}),
   txt('ergo_nota','Si ya tienes una, ¿cuándo y dónde fue?',{show:s=>s.ergo==='tengo',help:'Envíame el informe por WhatsApp.'})]};
-const S_CONSENT={t:'Consentimiento',f:[{id:'consent',l:'Autorizo a Rafael Quintana (Terapia Respiratoria) a usar estos datos solo para evaluarme y programar mi entrenamiento.',type:'check',req:1}]};
+const S_CONSENT={t:'Consentimiento',f:[{id:'consent',l:'Autorizo a Rafael Quintana (Terapia Respiratoria) a guardar y usar estos datos solo para evaluarme y programar mi entrenamiento.',type:'check',req:1}]};
 const FC_FIELDS=[
   seg('sensor','¿Cómo mides la frecuencia cardíaca?',[['muneca','Sensor del reloj'],['banda','Banda de pecho'],['ninguno','No la mido']]),
   row([num('fc_reposo','FC en reposo','lpm',{help:'Promedio de 7 días al despertar.'}),num('fc_max','FC más alta que has visto','lpm')]),
@@ -486,8 +494,8 @@ function makeRehabSchema(){
           {id:'objetivo_txt',l:'En tus palabras',type:'textarea'}]},
         {t:'Respiración',f:[{id:'isr',type:'isr'}]},
         {t:'Consentimiento',f:[
-          {id:'consent',l:'Autorizo a Rafael Quintana (Terapia Respiratoria) a usar estos datos solo para evaluarme y programar mi rehabilitación. Entiendo que este programa no reemplaza la atención de mi médico.',type:'check',req:1},
-          {id:'consent_wa',l:'Acepto enviar estas respuestas por WhatsApp.',type:'check',req:1}]}
+          {id:'consent',l:'Autorizo a Rafael Quintana (Terapia Respiratoria) a guardar y usar estos datos solo para evaluarme y programar mi rehabilitación. Entiendo que este programa no reemplaza la atención de mi médico.',type:'check',req:1},
+          {id:'consent_wa',l:'Si uso la opción de WhatsApp, acepto enviar estas respuestas por ese medio.',type:'check'}]}
       ]},
     checkin:{n:'02',tab:'Seguimiento',hash:'checkin',title:'Seguimiento semanal',time:'2 min',freq:'Cada domingo',
       lead:'Cómo estuviste esta semana. Si algo empeoró de golpe, no esperes al domingo: escríbeme o busca atención médica.',
@@ -528,6 +536,33 @@ const b64d=s=>new TextDecoder().decode(Uint8Array.from(atob(s),c=>c.charCodeAt(0
 
 /* ---------- assessment respiratorio (mismo dominio) ---------- */
 const WA='584142238924', WA_MAX=8000;
+/* ---------- guardado en la base de datos (Supabase) ---------- */
+const SB_URL='https://lgtjlvfmmqaknrdfvzob.supabase.co', SB_KEY='sb_publishable_ACr3-wNo1t7GlhX803qoRA_7q_8gTQE';
+const uuid=()=>{try{return crypto.randomUUID()}catch(e){return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)}};
+let SID={};try{SID=JSON.parse(localStorage.getItem('rq-sid-v1')||'{}')||{}}catch(e){}
+function sidOf(m){if(!SID[m]){SID[m]=uuid();try{localStorage.setItem('rq-sid-v1',JSON.stringify(SID))}catch(e){}}return SID[m]}
+function newSid(m){delete SID[m];sidOf(m)}
+const DIRTY={}, LAST={}; let cloudT;
+function saveState(st){const el=document.getElementById('savest');if(!el)return;el.dataset.s=st;el.textContent=st==='ok'?'Guardado ✓':st==='pend'?'Guardando…':'Sin conexión: lo guardo en este dispositivo y reintento';}
+function lastLabel(m){const k=LAST[m];if(!k)return null;const f=FIELD[m][k]||FIELD[m][k.replace(/_[DI]$/,'')];return f&&f.l?f.l:k}
+async function cloudSave(m,estado,keepalive){
+  const d=keepOf(m); if(!estado&&!Object.keys(d).length){DIRTY[m]=false;return true}
+  const pct=progress(m);
+  if(!estado)estado=(!missing(m).length&&pct>=80)?'completo':'borrador';
+  const p={v:2,t:m,s:DISC,f:new Date().toISOString(),d,pct,ult:lastLabel(m)};
+  if(m==='ingreso'&&ASSESS&&S[m].isr_ok!==false)p.a=ASSESS;
+  const body=JSON.stringify({p_session:sidOf(m),p_tipo:'ficha',p_modulo:m,p_disciplina:DISC,p_nombre:String(S[m].nombre||S.ingreso.nombre||''),p_contacto:String(S.ingreso.contacto||S[m].contacto||''),p_estado:estado,p_datos:p});
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/rpc/guardar_registro',{method:'POST',headers:{apikey:SB_KEY,'Content-Type':'application/json'},body,keepalive:!!keepalive&&body.length<60000});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    DIRTY[m]=false; saveState('ok'); return true;
+  }catch(e){DIRTY[m]=true; saveState('err'); return false}
+}
+function queueCloud(m){DIRTY[m]=true;saveState('pend');clearTimeout(cloudT);cloudT=setTimeout(()=>Object.keys(DIRTY).forEach(x=>{if(DIRTY[x]&&S[x])cloudSave(x)}),2500)}
+function flushCloud(){clearTimeout(cloudT);Object.keys(DIRTY).forEach(x=>{if(DIRTY[x]&&S[x])cloudSave(x,null,true)})}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushCloud()});
+window.addEventListener('pagehide',flushCloud);
+window.addEventListener('online',flushCloud);
 let ASSESS=null;
 try{const r=JSON.parse(localStorage.getItem('rq-assessment-v1')||'null');if(r&&r.scores)ASSESS=r}catch(e){}
 function assessLines(a){
@@ -592,18 +627,26 @@ function moduleHtml(m){
     ${M.sections.map(s=>`<section class="sec"><header><h3>${esc(s.t)}</h3>${s.note?`<p class="note">${esc(s.note)}</p>`:''}${s.src?`<p class="src">Fuente: ${esc(s.src)}</p>`:''}</header>${s.f.map(f=>fieldHtml(m,f)).join('')}</section>`).join('')}
     <div class="review" id="rev-${m}">
       <h3>Enviar a Rafael</h3>
-      <p class="howto">Toca «Preparar respuestas» y luego «Enviar por WhatsApp». No borres el código del final: es lo que me permite cargar tu ficha. Si WhatsApp no abre, copia las respuestas y envíalas al <span class="num">+58 414 223 8924</span>.</p>
-      <div class="actions"><button class="btn pri" type="button" data-act="prep" data-m="${m}">Preparar respuestas</button></div>
+      <p class="howto">Tus respuestas ya se van guardando solas. Cuando termines, toca «Enviar a Rafael» para avisarle que ${m==='checkin'?'tu semana':'tu ficha'} está lista.</p>
+      <div class="actions"><button class="btn pri" type="button" data-act="send" data-m="${m}">Enviar a Rafael</button></div>
       <p class="missing" data-missing hidden></p>
+      <p class="status" data-sent role="status"></p>
+      <div class="actions" data-sentwrap hidden>
+        <a class="btn wa" data-wanote target="_blank" rel="noopener" href="#">Avisarle por WhatsApp (opcional)</a>
+        ${m==='checkin'?`<button class="btn ghost" type="button" data-act="newweek">Empezar una semana nueva</button>`:''}
+      </div>
+      <details class="alt"><summary>¿No se pudo enviar? Mándala por WhatsApp</summary>
+      <p class="howto">Toca «Preparar respuestas» y luego «Enviar por WhatsApp». No borres el código del final: es lo que me permite cargar tu ficha. Si WhatsApp no abre, copia las respuestas y envíalas al <span class="num">+58 414 223 8924</span>.</p>
+      <div class="actions"><button class="btn" type="button" data-act="prep" data-m="${m}">Preparar respuestas</button></div>
       <div data-outwrap hidden style="display:flex;flex-direction:column;gap:10px">
         <textarea class="out" readonly data-out aria-label="Respuestas listas para copiar"></textarea>
         <div class="actions">
           <a class="btn pri wa" data-wa target="_blank" rel="noopener" href="#">Enviar por WhatsApp</a>
           <button class="btn" type="button" data-act="copy" data-m="${m}">Copiar respuestas</button>
-          ${m==='checkin'?`<button class="btn ghost" type="button" data-act="newweek">Empezar una semana nueva</button>`:''}
         </div>
         <p class="status" data-status role="status"></p>
       </div>
+      </details>
     </div>
   </section>`;
 }
@@ -649,10 +692,11 @@ async function packCode(obj){
   }catch(e){}
   return `#RQ1#${b64e(json)}#FIN#`;
 }
+function keepOf(m){const d=S[m],keep={};leaves(m).forEach(f=>{if(f.type==='lr'){['_D','_I'].forEach(x=>{if(d[f.id+x]!==undefined)keep[f.id+x]=d[f.id+x]})}else if(d[f.id]!==undefined&&d[f.id]!==''&&visible(f,d))keep[f.id]=d[f.id]});return keep}
 async function buildText(m){
   const d=S[m], M=SCHEMA[m];
   const useA=m==='ingreso'&&ASSESS&&d.isr_ok!==false;
-  const keep={};leaves(m).forEach(f=>{if(f.type==='lr'){['_D','_I'].forEach(x=>{if(d[f.id+x]!==undefined)keep[f.id+x]=d[f.id+x]})}else if(d[f.id]!==undefined&&d[f.id]!==''&&visible(f,d))keep[f.id]=d[f.id]});
+  const keep=keepOf(m);
   const payload={v:2,t:m,s:DISC,f:new Date().toISOString(),d:keep};
   if(useA)payload.a=ASSESS;
   return [`FICHA PERSONAL · ${DISC_LABEL[DISC].toUpperCase()} · ${M.title.toUpperCase()}`,`Para Rafael Quintana · Terapia Respiratoria`,'',...summaryLines(m,keep),...(useA?assessLines(ASSESS):[]),'(Código para Rafael, no lo borres)',await packCode(payload)].join('\n');
@@ -700,7 +744,7 @@ discEl.addEventListener('change',e=>{
   const v=e.target.value; if(!(ING[v]||v==='rehab')||v===DISC)return;
   DISC=v; S.disc=v; SCHEMA=makeSchema(v); MODS=Object.keys(SCHEMA); buildField();
   main.innerHTML=MODS.map(moduleHtml).join(''); tabs.innerHTML=tabHtml();
-  MODS.forEach(fill); setHero(); persist(); show(cur,true);
+  MODS.forEach(fill); setHero(); persist(); show(cur,true); MODS.forEach(x=>{if(Object.keys(S[x]||{}).length)queueCloud(x)});
   try{const u=new URL(location.href);u.searchParams.set('d',v);history.replaceState(null,'',u)}catch(err){}
 });}
 
@@ -716,7 +760,7 @@ function onChange(e){
   else if(t.type==='radio'){if(t.checked)S[m][k]=t.value}
   else S[m][k]=t.value;
   if(k==='nombre'&&m==='ingreso'){MODS.forEach(o=>{if(o!=='ingreso'&&!S[o].nombre){S[o].nombre=t.value;const i=$(`#${o}-nombre`);if(i)i.value=t.value}})}
-  conds(m); persist(); updProgress();
+  conds(m); persist(); updProgress(); LAST[m]=k; queueCloud(m);
   const out=$(`#rev-${m} [data-outwrap]`); if(out&&!out.hidden){out.hidden=true}
 }
 
@@ -738,6 +782,21 @@ const h=(location.hash||'').slice(1); show(HASH[h]||'ingreso');
 main.addEventListener('click',async e=>{
   const b=e.target.closest('[data-act]'); if(!b)return;
   const m=b.dataset.m, rev=m?$('#rev-'+m):null;
+  if(b.dataset.act==='send'){
+    const miss=missing(m), mm=$('[data-missing]',rev), st=$('[data-sent]',rev);
+    if(miss.length){mm.textContent='Falta: '+miss.join(' · ');mm.hidden=false;return}
+    mm.hidden=true; b.disabled=true; st.textContent='Enviando…';
+    const ok=await cloudSave(m,'enviado'); b.disabled=false;
+    if(ok){
+      const quien=S[m].nombre||S.ingreso.nombre||'';
+      st.textContent=m==='checkin'?'Listo. Rafael ya tiene tu semana.':'Listo. Rafael ya tiene tu ficha.';
+      $('[data-wanote]',rev).href='https://wa.me/'+WA+'?text='+encodeURIComponent(`Hola Rafael${quien?', soy '+quien:''}. Ya envié mi ${SCHEMA[m].title.toLowerCase()} (${DISC_LABEL[DISC]}).`);
+      $('[data-sentwrap]',rev).hidden=false;
+    }else{
+      st.textContent='No pude enviarla (puede ser la conexión). Tus respuestas siguen guardadas en este dispositivo. Usa la opción de WhatsApp de abajo.';
+      const alt=$('details.alt',rev); if(alt)alt.open=true;
+    }
+  }
   if(b.dataset.act==='prep'){
     const miss=missing(m), mm=$('[data-missing]',rev);
     if(miss.length){mm.textContent='Falta: '+miss.join(' · ');mm.hidden=false;return}
@@ -753,8 +812,8 @@ main.addEventListener('click',async e=>{
     catch(err){ta.focus();ta.select();st.textContent='Selecciona todo el texto de arriba y cópialo manualmente.'}
   }
   if(b.dataset.act==='newweek'){
-    const keep=S.checkin.nombre; S.checkin={nombre:keep}; persist(); fill('checkin'); updProgress();
-    $('#rev-checkin [data-outwrap]').hidden=true; window.scrollTo({top:0});
+    const keep=S.checkin.nombre; S.checkin={nombre:keep}; persist(); fill('checkin'); updProgress(); newSid('checkin');
+    $('#rev-checkin [data-outwrap]').hidden=true; $('#rev-checkin [data-sentwrap]').hidden=true; $('#rev-checkin [data-sent]').textContent=''; window.scrollTo({top:0});
   }
 });
 
